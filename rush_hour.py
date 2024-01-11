@@ -1,7 +1,8 @@
+import pandas as pd
+
 class Vehicle:
-    def __init__(self, name, color, length, orientation, start_row, start_col):
-        self.name = name # we'll use name to represent vehicles
-        self.color = color # together with color, example: red car, green truck, etc.
+    def __init__(self, name, length, orientation, start_row, start_col):
+        self.name = name # we'll use name to represent vehicles (A, B, C, etc.)
         self.length = length
         self.orientation = orientation # 'H' for horizontal and 'V' for vertical
         self.row = start_row
@@ -13,43 +14,23 @@ class RushHour:
         self.vehicles = {}
 
     def add_vehicle(self, vehicle):
-        # use identifier in addition to color for representing vehicles
-        vehicle_id = f"{vehicle.name}{vehicle.color}"
+
+        vehicle_id = vehicle.name
         # add vehicle to dict
-        self.vehicles[vehicle_id] = vehicle
+        self.vehicles[vehicle.name] = vehicle
         # logic for horizontal vehicles
         # loop over lenght and add to columns
         if vehicle.orientation == 'H':
             for i in range(vehicle.length):
-                self.board[vehicle.row][vehicle.col + i] = vehicle.color[0].upper() + vehicle.name[0].upper()
+                self.board[vehicle.row][vehicle.col + i] = vehicle.name
         # same but add to rows for vertical vehicles
         else:
             for i in range(vehicle.length):
-                self.board[vehicle.row + i][vehicle.col] = vehicle.color[0].upper() + vehicle.name[0].upper()
+                self.board[vehicle.row + i][vehicle.col] = vehicle.name
 
     def display_board(self):
-        unicode_map = {
-            'RC': '🚗',  # Red car
-            'BC': '🚙',  # Blue car
-            'YC': '🚕',  # Yellow car
-            'OB': '🚌',  # Orange bus
-            'YT': '🚜',  # Yellow tractor
-            'OT': '🚚',  # Orange truck
-            'BB': '🚎',  # Blue bus
-            'YS': '🛵',  # Yellow scooter
-            'WB': '🚐',  # White bus
-            'GT': '🚛',  # Green truck
-            'BM': '🏍️',  # Black motor
-            'WT': '🚑',  # White truck
-            'GC': '🛻',  # Green car
-            'GT': '🚃',  # Green train
-
-            # more to be added later
-            '.': '⬜'   # Empty space
-        }
-
         for row in self.board:
-            print(' '.join(unicode_map.get(cell, cell) for cell in row))
+            print(' '.join(row))
         print()
 
     def is_move_valid(self, vehicle, new_row, new_col):
@@ -58,14 +39,16 @@ class RushHour:
         if vehicle.orientation == 'H':
             start, end = sorted([vehicle.col, new_col])
             for col in range(start, end + vehicle.length):
-                if col != vehicle.col and self.board[vehicle.row][col] != '.':
-                    return True
+                if col < vehicle.col or col >= vehicle.col + vehicle.length:
+                    if self.board[vehicle.row][col] != '.':
+                        return False
         else:
             start, end = sorted([vehicle.row, new_row])
             for row in range(start, end + vehicle.length):
-                if row != vehicle.row and self.board[row][vehicle.col] != '.':
-                    return True
-        return False
+                if row < vehicle.row or row >= vehicle.row + vehicle.length:
+                    if self.board[row][vehicle.col] != '.' and row != vehicle.row:
+                        return False
+        return True
 
     def move_vehicle(self, vehicle_id, distance):
         vehicle = self.vehicles[vehicle_id]
@@ -81,25 +64,25 @@ class RushHour:
                 # clear vehicle's current position
                 for i in range(vehicle.length):
                     self.board[vehicle.row][vehicle.col + i] = '.'
-                    # update vehicle position
-                    vehicle.col = new_col
-                    # place vehicle at new position
-                    for i in range(vehicle.length):
-                        self.board[vehicle.row][vehicle.col + i] = vehicle.color[0].upper()
+                # update vehicle position
+                vehicle.col = new_col
+                # place vehicle at new position
+                for i in range(vehicle.length):
+                    self.board[vehicle.row][vehicle.col + i] = vehicle.name
             else:
                 print("Invalid move")
 
         else:
             # similar logic for vertical movement
             new_row += distance
-            if 0 <= new_row <= 5 - vehicle.length + 1 and self.is_move_valid(vehicle, new_row, new_col):
+            if 0 <= new_row <= 5 - vehicle.length and self.is_move_valid(vehicle, new_row, new_col):
 
-                for i in range(vehicle.length):
-                    self.board[vehicle.row + i][vehicle.col] = '.'
+                    for i in range(vehicle.length):
+                        self.board[vehicle.row + i][vehicle.col] = '.'
 
                     vehicle.row = new_row
-                for i in range(vehicle.length):
-                    self.board[vehicle.row + i][vehicle.col] = vehicle.color[0].upper()
+                    for i in range(vehicle.length):
+                        self.board[vehicle.row + i][vehicle.col] = vehicle.name
 
             else:
                 print("Invalid move.")
@@ -115,7 +98,8 @@ class RushHour:
     def play_game(self):
         while True:
             self.display_board()
-            user_input = input("Enter your move (color+name distance): ")
+            user_input = input("Enter your move (Name + distance): ")
+
             vehicle_id, distance = user_input.split()
             distance = int(distance)
 
@@ -126,7 +110,7 @@ class RushHour:
                     self.display_board()
                     break
             else:
-                print("Invalid vehicle color. Please try again.")
+                print("Invalid vehicle name. Please try again.")
 
     def get_state(self):
         """Method for getting a string representation of the current
@@ -148,19 +132,9 @@ class RushHour:
 if __name__ == "__main__":
     # initialize and set up the game
     game = RushHour()
-    game.add_vehicle(Vehicle("tractor", "yellow", 2, 'H', 0, 1))
-    game.add_vehicle(Vehicle("car", "yellow", 3, 'H', 0, 3))
-    game.add_vehicle(Vehicle("bus", "orange", 2, 'H', 1, 1))
-    game.add_vehicle(Vehicle("car", "green", 2, 'V', 1, 3))
-    game.add_vehicle(Vehicle("truck", "white", 2, 'H', 1, 4))
-    game.add_vehicle(Vehicle("car", "red", 2, 'H', 2, 0))
-    game.add_vehicle(Vehicle("truck", "orange", 2, 'V', 2, 2))
-    game.add_vehicle(Vehicle("bus", "blue", 2, 'H', 3, 3))
-    game.add_vehicle(Vehicle("scooter", "yellow", 2, 'V', 2, 5))
-    game.add_vehicle(Vehicle("bus", "white", 2, 'H', 3, 0))
-    game.add_vehicle(Vehicle("truck", "green", 2, 'V', 4, 0))
-    game.add_vehicle(Vehicle("motor", "black", 2, 'V', 4, 2))
-    game.add_vehicle(Vehicle("train", "green", 2, 'H', 4, 4))
+
+    game.add_vehicle(Vehicle("A", 2, 'V', 0, 0))
+    game.add_vehicle(Vehicle("B", 2, 'H', 3, 3))
     # Add more vehicles as needed
 
     # Start the game
