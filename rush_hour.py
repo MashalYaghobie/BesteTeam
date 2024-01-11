@@ -12,12 +12,30 @@ class RushHour:
     def __init__(self):
         self.board = [['.' for _ in range(6)] for _ in range(6)]
         self.vehicles = {}
+        
+    # Code added
+    def read_vehicle(self, file):
+        rush_hour_file = pd.read_csv(file)
 
+        for car in rush_hour_file.values:
+            name = car[0]
+            orientation = car[1]
+            start_col = car[2]
+            start_row = car[3]
+            length = car[4]
+        
+            self.add_vehicle(Vehicle(name, length, orientation, start_row, start_col))
+        
+            
     def add_vehicle(self, vehicle):
 
         vehicle_id = vehicle.name
         # add vehicle to dict
         self.vehicles[vehicle.name] = vehicle
+
+        #################
+        
+        
         # logic for horizontal vehicles
         # loop over lenght and add to columns
         if vehicle.orientation == 'H':
@@ -133,9 +151,13 @@ if __name__ == "__main__":
     # initialize and set up the game
     game = RushHour()
 
+    game.read_vehicle('gameboards/Rushhour6x6_1.csv')
+    
     game.add_vehicle(Vehicle("A", 2, 'V', 0, 0))
     game.add_vehicle(Vehicle("B", 2, 'H', 3, 3))
     # Add more vehicles as needed
 
+    
+    
     # Start the game
     game.play_game()
