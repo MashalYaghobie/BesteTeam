@@ -1,3 +1,7 @@
+from queue import Queue
+import os
+
+
 class Vehicle:
     def __init__(self, color, identifier, length, orientation, start_row, start_col):
         self.color = color # we'll use color to represent vehicles
@@ -28,8 +32,18 @@ class RushHour:
                 self.board[vehicle.row + i][vehicle.col] = vehicle.color[0].upper()
 
     def display_board(self):
+        unicode_map = {
+            'R': '🚗',  # Red car
+            'B': '🚙',  # Blue car
+            'Y': '🚕',  # Yellow car
+            'O': '🚌',  # Orange bus
+            'G': '🚜',  # Green tractor
+            'L': '🚚',  # Light blue truck
+            '.': '⬜'   # Empty space
+        }
+
         for row in self.board:
-            print(' '.join(row))
+            print(' '.join(unicode_map.get(cell, cell) for cell in row))
         print()
 
     def move_vehicle(self, vehicle_id, distance):
@@ -86,6 +100,22 @@ class RushHour:
                     break
             else:
                 print("Invalid vehicle color. Please try again.")
+
+    def get_state(self):
+        """Method for getting a string representation of the current
+        state of the board.
+        Example: a board that looks like this:
+        . . . . . .
+        . . A A . .
+        . . B . . .
+        . B B . C .
+        . . . . C .
+        . . . . . .
+        will have a state string that looks like this:
+        "...... ..AA.. ..B... .BB.C. ......"
+        This allows easy comparisons between board states.
+        """
+        return ''.join(''.join(row) for row in self.board)
 
 
 if __name__ == "__main__":
