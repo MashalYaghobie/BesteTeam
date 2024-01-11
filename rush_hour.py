@@ -2,7 +2,7 @@ import pandas as pd
 
 class Vehicle:
     def __init__(self, name, length, orientation, start_row, start_col):
-        self.name = name # we'll use name to represent vehicles (A, B, C, etc.)
+        self.name = name # We'll use name to represent vehicles (A, B, C, etc.)
         self.length = length
         self.orientation = orientation # 'H' for horizontal and 'V' for vertical
         self.row = start_row
@@ -10,43 +10,47 @@ class Vehicle:
 
 class RushHour:
     def __init__(self):
+        # Initializes board and dictionary where vehicles will be stored
         self.board = [['.' for _ in range(6)] for _ in range(6)]
         self.vehicles = {}
         
     # Code added
-    def read_vehicle(self, file):
+    def read_all_vehicles(self, file):
+        # Reads the csv file
         rush_hour_file = pd.read_csv(file)
-
+        
+        # Loops through the csv file and assings the values
         for car in rush_hour_file.values:
             name = car[0]
             orientation = car[1]
-            start_col = car[2]
-            start_row = car[3]
+            
+            # - 1 because of indexing 
+            start_col = car[2] - 1
+            start_row = car[3] - 1
+            
             length = car[4]
-        
+            
+            # Adds it to dict and places it on the board
             self.add_vehicle(Vehicle(name, length, orientation, start_row, start_col))
         
             
     def add_vehicle(self, vehicle):
-
-        vehicle_id = vehicle.name
-        # add vehicle to dict
+        # Add vehicle to dict
         self.vehicles[vehicle.name] = vehicle
-
-        #################
         
-        
-        # logic for horizontal vehicles
-        # loop over lenght and add to columns
+        # Logic for horizontal vehicles
+        # Loop over length and add to columns
         if vehicle.orientation == 'H':
             for i in range(vehicle.length):
                 self.board[vehicle.row][vehicle.col + i] = vehicle.name
-        # same but add to rows for vertical vehicles
+                
+        # Same but add to rows for vertical vehicles
         else:
             for i in range(vehicle.length):
                 self.board[vehicle.row + i][vehicle.col] = vehicle.name
 
     def display_board(self):
+        # Displays the board
         for row in self.board:
             print(' '.join(row))
         print()
@@ -116,7 +120,7 @@ class RushHour:
     def play_game(self):
         while True:
             self.display_board()
-            user_input = input("Enter your move (Name + distance): ")
+            user_input = input("Enter your move (Name + distance, format = A 1): ")
 
             vehicle_id, distance = user_input.split()
             distance = int(distance)
@@ -150,14 +154,9 @@ class RushHour:
 if __name__ == "__main__":
     # initialize and set up the game
     game = RushHour()
+    
+    # Reads all the vehicles that are in the csv file
+    game.read_all_vehicles('gameboards/Rushhour6x6_1.csv')
 
-    game.read_vehicle('gameboards/Rushhour6x6_1.csv')
-    
-    game.add_vehicle(Vehicle("A", 2, 'V', 0, 0))
-    game.add_vehicle(Vehicle("B", 2, 'H', 3, 3))
-    # Add more vehicles as needed
-
-    
-    
     # Start the game
     game.play_game()
