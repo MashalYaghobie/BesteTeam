@@ -34,11 +34,7 @@ class RushHour:
 
     def move_vehicle(self, vehicle_id, distance):
         vehicle = self.vehicles[vehicle_id]
-        
-        # TESTING
-        #print(f"row, col, length: {vehicle.color, vehicle.row, vehicle.col, vehicle.length}")
-        
-
+     
         if vehicle.orientation == 'H':
             # calculate new column position
             new_col = vehicle.col + distance
@@ -50,13 +46,24 @@ class RushHour:
                 # Loops through every vehicle
                 for k, v in self.vehicles.items():
                     
+                    # TESTING
+                    print(f'vehicle: {v.color, v.row, v.col}')
+                    
                     # Checks whether the current vehicle is on the same row as another vehicle and skips vehicle itself 
                     # This could be a potential bug once there are vehicles of the same color on the same row
-                    if vehicle.row == v.row and vehicle.color != v.color:
-
+                    if v.orientation == 'V' and (v.row + v.length - 1) == vehicle.row or vehicle.row == v.row and vehicle.color != v.color:
+                        # T
+                        
+                        # TESTING
+                        print(f'passed: {v.color, v.row, v.col}')
+                        
                         # Checks whether the new col value is smaller than the neighbour vehicle col value
                         if new_col + (vehicle.length - 1)  < v.col:
-   
+                            
+                            ## TESTING
+                            print(vehicle.color, vehicle.row, vehicle.col)
+                            print(v.color, v.row, v.col)
+                            
                             # clear vehicle's current position
                             for i in range(vehicle.length):
                                 self.board[vehicle.row][vehicle.col + i] = '.'
@@ -65,6 +72,10 @@ class RushHour:
                             # place vehicle at new position
                             for i in range(vehicle.length):
                                 self.board[vehicle.row][vehicle.col + i] = vehicle.color[0].upper()
+                                
+                            ## TESTING
+                            print(vehicle.color, vehicle.row, vehicle.col)
+                            print(v.color, v.row, v.col)
                             
                         else:
                             print("Invalid move")
@@ -82,24 +93,24 @@ class RushHour:
                 for k, v in self.vehicles.items():
                     if vehicle.col == v.col and vehicle.color != v.color:
                         if new_row + (vehicle.length - 1)  < v.row:
-                        
+                            ## TESTING
+                            print(vehicle.color, vehicle.row, vehicle.col, vehicle.length)
+                            
                             for i in range(vehicle.length):
                                 self.board[vehicle.row + i][vehicle.col] = '.'
 
                             vehicle.row = new_row
                             for i in range(vehicle.length):
                                 self.board[vehicle.row + i][vehicle.col] = vehicle.color[0].upper()
-                                
+                            ## TESTING
+                            print(vehicle.color, vehicle.row, vehicle.col, vehicle.length) 
+                            
                         else:
                             print("Invalid move")
                             break
             else:
                 print("Invalid move.")
-        
-        
-        # TESTING
-        #print(f"row, col, length: {vehicle.color, vehicle.row, vehicle.col, vehicle.length}")
-        
+
         
     def check_win(self):
         # check if red car 'R' is in the winning position
