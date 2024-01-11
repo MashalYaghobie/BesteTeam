@@ -45,8 +45,6 @@ class RushHour:
             'GT': '🚃',  # Green train
 
             # more to be added later
-
-
             '.': '⬜'   # Empty space
         }
 
@@ -61,13 +59,13 @@ class RushHour:
             start, end = sorted([vehicle.col, new_col])
             for col in range(start, end + vehicle.length):
                 if col != vehicle.col and self.board[vehicle.row][col] != '.':
-                    return False
+                    return True
         else:
             start, end = sorted([vehicle.row, new_row])
             for row in range(start, end + vehicle.length):
                 if row != vehicle.row and self.board[row][vehicle.col] != '.':
-                    return False
-        return True
+                    return True
+        return False
 
     def move_vehicle(self, vehicle_id, distance):
         vehicle = self.vehicles[vehicle_id]
@@ -80,7 +78,6 @@ class RushHour:
             # check if the move is valid
             if 0 <= new_col <= 5 - vehicle.length + 1 and self.is_move_valid(vehicle, new_row, new_col):
 
-
                 # clear vehicle's current position
                 for i in range(vehicle.length):
                     self.board[vehicle.row][vehicle.col + i] = '.'
@@ -89,10 +86,8 @@ class RushHour:
                     # place vehicle at new position
                     for i in range(vehicle.length):
                         self.board[vehicle.row][vehicle.col + i] = vehicle.color[0].upper()
-
             else:
                 print("Invalid move")
-
 
         else:
             # similar logic for vertical movement
