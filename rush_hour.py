@@ -133,8 +133,7 @@ if __name__ == "__main__":
     # initialize and set up the game
     game = RushHour()
 
-    game.add_vehicle(Vehicle("A", 2, 'V', 0, 0))
-    game.add_vehicle(Vehicle("B", 2, 'H', 3, 3))
+    
     # Add more vehicles as needed
 
     # Start the game
