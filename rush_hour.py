@@ -93,29 +93,28 @@ class RushHour:
         In this method we check if the vehicle is able to move to the
         inputed position without colliding with another vehicle.
         """
-        # we check if the orientation of the vehicle is horizontal
+         # we check if the orientation of the vehicle is horizontal
         if vehicle.orientation == 'H':
-            # get the starting and ending column for the vehicle
-            start, end = sorted([vehicle.col, new_col])
+            # check boundaries for horizontal vehicles
+            if new_col < 0 or new_col + vehicle.length > 6:
+                return False
             # loop through all the columns for the vehicle for its move
-            for col in range(start, end + vehicle.length):
-                if col < vehicle.col or col >= vehicle.col + vehicle.length:
+            for col in range(new_col, new_col + vehicle.length - 1):
                     # check if the place on the board is NOT a dot
                     if self.board[vehicle.row][col] != '.':
                         return False
         # for vertical oriented vehicles
         else:
-            # get the starting and ending row for the vehicle
-            start, end = sorted([vehicle.row, new_row])
+            # check boundaries for vertical vehicles
+            if new_row < 0 or new_row + vehicle.length > 6:
+                return False
             # loop through all the columns for the vehicle for its move
-            for row in range(start, end + vehicle.length):
-                if row < vehicle.row or row >= vehicle.row + vehicle.length:
+            for row in range(new_row, new_row + vehicle.length - 1):
                     # check if the place on the board is NOT a dot
-                    if self.board[row][vehicle.col] != '.' and row != vehicle.row:
+                    if self.board[row][vehicle.col] != '.':
                         return False
         # return true if the move is valid
         return True
-
 
 
     def move_vehicle(self, vehicle_id, distance):
@@ -130,7 +129,7 @@ class RushHour:
             # calculate new column position
             new_col += distance
             # check if the move is valid
-            if 0 <= new_col <= 5 - vehicle.length + 1 and self.is_move_valid(vehicle, new_row, new_col):
+            if self.is_move_valid(vehicle, new_row, new_col):
                 # clear the current position of the vehicle
                 for i in range(vehicle.length):
                     self.board[vehicle.row][vehicle.col + i] = '.'
@@ -146,7 +145,7 @@ class RushHour:
             # calculate the new row position
             new_row += distance
             # check if the move is valid
-            if 0 <= new_row <= 5 - vehicle.length + 1 and self.is_move_valid(vehicle, new_row, new_col):
+            if self.is_move_valid(vehicle, new_row, new_col):
                     # clear the current position of the vehicle
                     for i in range(vehicle.length):
                         self.board[vehicle.row + i][vehicle.col] = '.'
