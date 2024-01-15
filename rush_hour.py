@@ -12,13 +12,13 @@ class Vehicle:
         """
         # Name is the name of the vehicle (A, B, C, etc)
         self.name = name
-        
+
         # Length will be the length of the vehicle
         self.length = length
-        
+
         # Orientation will be H for horizontal and V for vertical
         self.orientation = orientation
-        
+
         # We set some starting values for the placement of each vehicle
         self.row = start_row
         self.col = start_col
@@ -33,8 +33,8 @@ class RushHour:
     """
     def __init__(self, file):
         """
-        In this method we read the csv file,initialize the board 
-        for the rush hour game, add vehicle-instances to a dictionary. 
+        In this method we read the csv file,initialize the board
+        for the rush hour game, add vehicle-instances to a dictionary.
         """
         # Read the csv file and get size of board
         self.rush_hour_file = pd.read_csv(file)
@@ -42,14 +42,14 @@ class RushHour:
 
         # Create the board with dots for the desired boardsize
         self.board = [['.' for _ in range(size_board)] for _ in range(size_board)]
-        
+
         # Create a new dictionary for the vehicle-instances
         self.vehicles = {}
 
         # Call function
         self.read_all_vehicles()
-        
-    
+
+
     def read_all_vehicles(self):
         """
         In this method we read the input-file and create the variables
@@ -60,12 +60,12 @@ class RushHour:
         for car in self.rush_hour_file.values:
             name = car[0]
             orientation = car[1]
-            
+
             # We substract 1 because of indexing
             start_col = car[2] - 1
             start_row = car[3] - 1
             length = car[4]
-            
+
             # Adds the vehicle to dictionary and places it on the board
             self.add_vehicle(Vehicle(name, length, orientation, start_row, start_col))
 
@@ -78,12 +78,12 @@ class RushHour:
         """
         # We add the vehicle to the dictionary
         self.vehicles[vehicle.name] = vehicle
-        
+
         # For horizontal oriented vehicles: loop over length and add to columns
         if vehicle.orientation == 'H':
             for i in range(vehicle.length):
                 self.board[vehicle.row][vehicle.col + i] = vehicle.name
-                
+
         # For vertical oriented vehicles: loop over length and add to rows
         else:
             for i in range(vehicle.length):
@@ -105,39 +105,26 @@ class RushHour:
         In this method we check if the vehicle is able to move to the
         inputed position without colliding with another vehicle.
         """
-<<<<<<< HEAD
-         # we check if the orientation of the vehicle is horizontal
+        board_size = len(self.board)
+
         if vehicle.orientation == 'H':
-            # check boundaries for horizontal vehicles
-            if new_col < 0 or new_col + vehicle.length > 6:
+            # Check if the horizontal move is within the horizontal bounds
+            if new_col < 0 or new_col + vehicle.length > board_size:
                 return False
-            # loop through all the columns for the vehicle for its move
-            for col in range(new_col, new_col + vehicle.length - 1):
-=======
-        # We check if the orientation of the vehicle is horizontal
-        if vehicle.orientation == 'H':
-            
-            # Get the starting and ending column for the vehicle
-            start, end = sorted([vehicle.col, new_col])
-            
-            # Loop through all the columns for the vehicle for its move
-            for col in range(start, end + vehicle.length):
-                if col < vehicle.col or col >= vehicle.col + vehicle.length:
->>>>>>> 210a977cf5ab20bd0138d743dde70c9f9bb734e8
-                    # check if the place on the board is NOT a dot
-                    if self.board[vehicle.row][col] != '.':
-                        return False
-        # for vertical oriented vehicles
-        else:
-            # check boundaries for vertical vehicles
-            if new_row < 0 or new_row + vehicle.length > 6:
+                # Check each cell for collisions, excluding the vehicle's current cells
+            for col in range(new_col, new_col + vehicle.length):
+                if self.board[vehicle.row][col] != '.' and col not in range(vehicle.col, vehicle.col + vehicle.length):
+                    return False
+
+        else: # Vertical orientation
+            # Check if the vertical move is within the vertical bounds
+            if new_row < 0 or new_row + vehicle.length > board_size:
                 return False
-            # loop through all the columns for the vehicle for its move
-            for row in range(new_row, new_row + vehicle.length - 1):
-                    # check if the place on the board is NOT a dot
-                    if self.board[row][vehicle.col] != '.':
-                        return False
-        # return true if the move is valid
+            # Check each cell for collisions, excluding the vehicle's current cells
+            for row in range(new_row, new_row + vehicle.length):
+                if self.board[row][vehicle.col] != '.' and row not in range(vehicle.row, vehicle.row + vehicle.length):
+                    return False
+
         return True
 
 
@@ -188,17 +175,19 @@ class RushHour:
         In this method we check if the game has been finished
         The game is finished when the 'X' car reaches the right edge of the board.
         """
+        # get the red car object
+        red_car = self.vehicles.get('X')
         # find row containing red car 'X'
         for row in self.board:
             if 'X' in row:
                 # check if rightmost part of 'X' car is at the right edge of board
                 red_car_index = row.index('X')
-                if red_car_index + 1 == len(row) - 1:
+                if red_car_index + red_car.length == len(row):
                     # if the car is there we return True
                     return True
         return False
 
-        
+
     def play_game(self):
         """
         In this method we create the ability to play the game by calling

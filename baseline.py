@@ -50,8 +50,7 @@ class RushHourSolver:
 
 
 if __name__ == "__main__":
-    game = RushHour()
-    game.read_all_vehicles("gameboards/Rushhour6x6_1.csv")
-
+    game = RushHour('gameboards/Rushhour6x6_1.csv')
+    
     solver = RushHourSolver(game)
     solver.solve_randomly()
