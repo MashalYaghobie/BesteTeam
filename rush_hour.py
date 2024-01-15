@@ -238,10 +238,7 @@ class RushHour:
 
 if __name__ == "__main__":
     # initialize and set up the game
-    game = RushHour('gameboards/Rushhour12x12_7.csv')
-
-    # Reads all the vehicles that are in the csv file
-    #game.read_all_vehicles('gameboards/Rushhour6x6_1.csv')
+    game = RushHour('gameboards/Rushhour6x6_1.csv')
 
     # Start the game
     game.play_game()
