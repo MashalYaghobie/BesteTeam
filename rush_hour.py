@@ -10,13 +10,16 @@ class Vehicle:
         """
         In this method we will create some base variables or values for the vehicles.
         """
-        # name is the name of the vehicle (A, B, C, etc)
+        # Name is the name of the vehicle (A, B, C, etc)
         self.name = name
-        # length will be the length of the vehicle
+        
+        # Length will be the length of the vehicle
         self.length = length
-        # orientation will be H for horizontal and V for vertical
+        
+        # Orientation will be H for horizontal and V for vertical
         self.orientation = orientation
-        # we set some starting values for the placement of each vehicle
+        
+        # We set some starting values for the placement of each vehicle
         self.row = start_row
         self.col = start_col
 
@@ -28,35 +31,42 @@ class RushHour:
     We will add vehicles, create the board, move the vehicles and
     check if the game is done.
     """
-    def __init__(self):
+    def __init__(self, file):
         """
-        In this method we initialize the board for the rush hour game and
-        add vehicle-instances to a dictionary.
+        In this method we read the csv file,initialize the board 
+        for the rush hour game, add vehicle-instances to a dictionary. 
         """
-        # create the board with dots for the desired boardsize
-        self.board = [['.' for _ in range(6)] for _ in range(6)]
-        # create a new dictionary for the vehicle-instances
+        # Read the csv file and get size of board
+        self.rush_hour_file = pd.read_csv(file)
+        size_board = max(self.rush_hour_file['col'])
+
+        # Create the board with dots for the desired boardsize
+        self.board = [['.' for _ in range(size_board)] for _ in range(size_board)]
+        
+        # Create a new dictionary for the vehicle-instances
         self.vehicles = {}
 
-
-
-    def read_all_vehicles(self, file):
+        # Call function
+        self.read_all_vehicles()
+        
+    
+    def read_all_vehicles(self):
         """
         In this method we read the input-file and create the variables
         for the vehicles such as name, orientation, length, starting column
         and starting row. Furthermore we add the vehicle instance to the dictionary.
         """
-        # reads the input csv file
-        rush_hour_file = pd.read_csv(file)
-        # loops through the csv file and assigns the values to variables
-        for car in rush_hour_file.values:
+        # Loops through the csv file and assigns the values to variables
+        for car in self.rush_hour_file.values:
             name = car[0]
             orientation = car[1]
-            # we substract 1 because of indexing
+            
+            # We substract 1 because of indexing
             start_col = car[2] - 1
             start_row = car[3] - 1
             length = car[4]
-            # adds the vehicle to dictionary and places it on the board
+            
+            # Adds the vehicle to dictionary and places it on the board
             self.add_vehicle(Vehicle(name, length, orientation, start_row, start_col))
 
 
@@ -66,13 +76,15 @@ class RushHour:
         In this method we add vehicles to the game and place them
         on the desired place on the board.
         """
-        # we add the vehicle to the dictionary
+        # We add the vehicle to the dictionary
         self.vehicles[vehicle.name] = vehicle
-        # for horizontal oriented vehicles: loop over length and add to columns
+        
+        # For horizontal oriented vehicles: loop over length and add to columns
         if vehicle.orientation == 'H':
             for i in range(vehicle.length):
                 self.board[vehicle.row][vehicle.col + i] = vehicle.name
-        # for vertical oriented vehicles: loop over length and add to rows
+                
+        # For vertical oriented vehicles: loop over length and add to rows
         else:
             for i in range(vehicle.length):
                 self.board[vehicle.row + i][vehicle.col] = vehicle.name
@@ -82,7 +94,7 @@ class RushHour:
         """
         In this method we print the board for visualization purposes.
         """
-        # loop through the rows in the board and add some space between the rows
+        # Loop through the rows in the board and add some space between the rows
         for row in self.board:
             print(' '.join(row))
         print()
@@ -93,11 +105,13 @@ class RushHour:
         In this method we check if the vehicle is able to move to the
         inputed position without colliding with another vehicle.
         """
-        # we check if the orientation of the vehicle is horizontal
+        # We check if the orientation of the vehicle is horizontal
         if vehicle.orientation == 'H':
-            # get the starting and ending column for the vehicle
+            
+            # Get the starting and ending column for the vehicle
             start, end = sorted([vehicle.col, new_col])
-            # loop through all the columns for the vehicle for its move
+            
+            # Loop through all the columns for the vehicle for its move
             for col in range(start, end + vehicle.length):
                 if col < vehicle.col or col >= vehicle.col + vehicle.length:
                     # check if the place on the board is NOT a dot
@@ -175,6 +189,7 @@ class RushHour:
                     return True
         return False
 
+        
     def play_game(self):
         """
         In this method we create the ability to play the game by calling
@@ -185,7 +200,7 @@ class RushHour:
             # display the board
             self.display_board()
             # ask for next move
-            user_input = input("Enter your move (Name + distance, format = A 1): ")
+            user_input = input("Enter your move (Name + distance, (format = A 1)): ")
             # create the vehicle id and distance from the users input
             vehicle_id, distance = user_input.split()
             distance = int(distance)
@@ -223,10 +238,10 @@ class RushHour:
 
 if __name__ == "__main__":
     # initialize and set up the game
-    game = RushHour()
+    game = RushHour('gameboards/Rushhour12x12_7.csv')
 
     # Reads all the vehicles that are in the csv file
-    game.read_all_vehicles('gameboards/Rushhour6x6_1.csv')
+    #game.read_all_vehicles('gameboards/Rushhour6x6_1.csv')
 
     # Start the game
     game.play_game()
