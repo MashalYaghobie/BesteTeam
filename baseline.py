@@ -3,55 +3,99 @@ import random
 from rush_hour import RushHour
 
 class RushHourSolver:
+    """
+    In this class we add some methods to solve our rushhour boards/game randomly.
+    """
+
+    # this method initializes the game
     def __init__(self, game):
         self.game = game
 
-
     def get_possible_moves(self, vehicle):
-        """Generate all possible moves for a given vehicle."""
+        """
+        In this method we generate / get all the possible moves for any
+        vehicle and add those moves to a list.
+        """
+        
         board_size = len(self.game.board)
-        # store the moves in a list
+
+        # create a list where we will store all moves
         moves = []
+
+        # check if the vehicle is oriented horizontally
         if vehicle.orientation == 'H':
+
             # loop over the columns
             for col in range(6 - vehicle.length + 1): # TODO: avoid hardcoding these values
-                # check if the vehicle can move there
+
+                # check if the vehicle is allowed to move there
                 if self.game.is_move_valid(vehicle, vehicle.row, col):
-                    # calculate the distance
+
+                    # calculate the distance for the move
                     distance = col - vehicle.col
+
                     # exclude moves with 0 distance
                     if distance != 0:
+
                         # add the move to the list
                         moves.append((vehicle.row, col))
+        
+        # for all the vehicles that are vertically oriented
         else:
+
+            # loop over the rows
             for row in range(6 - vehicle.length + 1): # TODO: avoid hardcoding these values
+
+                # check if the vehicle is allowed to move here
                 if self.game.is_move_valid(vehicle, row, vehicle.col):
-                    # calculate the distance
+
+                    # calculate the distance for the move
                     distance = row - vehicle.row
+
+                    # exclude moves with 0 distance
                     if distance != 0:
+
+                        # add the move to the list
                         moves.append((row, vehicle.col))
+
+        # return the list with all the possible moves
         return moves
 
 
     def solve_randomly(self, max_iterations=1000000000):
-        """Attempt to solve the puzzle with random moves."""
+        """
+        In this method we create an algorithm that is capable
+        of solving the rush hour board by repeatedly doing random moves
+        untill the red vehicle is at the desired exit spot.
+        """
+
+        # we loop through our set maximum iterations
         for iteration in range(max_iterations):
-            # choose a random vehicle
+
+            # choose a random vehicle from the game
             vehicle_name = random.choice(list(self.game.vehicles.keys()))
             vehicle = self.game.vehicles[vehicle_name]
-            # check if the vehicle can move
+
+            # check if the vehicle is allowed to move
             possible_moves = self.get_possible_moves(vehicle)
-            if not possible_moves: # if it can't move, choose a different vehicle
+
+            # if the vehicle can't move, choose a different vehicle
+            if not possible_moves:
                 continue
-            # choose a random move
+
+            # choose a random move from the possible moves
             new_row, new_col = random.choice(possible_moves)
-            # calculate the distance
+
+            # calculate the distance for the move
             distance = new_col - vehicle.col if vehicle.orientation == 'H' else new_row - vehicle.row
-            # move the vehicle
+
+            # move the vehicle to the new place on the board
             self.game.move_vehicle(vehicle_name, distance)
-            # Print the current state of the board
+
+            # Print the current/new state of the board
             print(f"Move {iteration + 1}: Move {vehicle_name} by {distance} units")
             self.game.display_board()
+            
             # check for win condition
             if self.game.check_win():
                 print(f"Puzzle solved in {iteration + 1} iterations!")
