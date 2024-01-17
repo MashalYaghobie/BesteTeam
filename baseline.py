@@ -99,7 +99,7 @@ class RushHourSolver:
             moves_counter += 1
             
             # Print the current/new state of the board
-            print(f"Iteration: {iteration + 1}, Move: {moves_counter}:\nVehicle {vehicle_name} by {distance} units")
+            print(f"Iteration: {iteration + 1}, Move: {moves_counter}\nVehicle {vehicle_name} by {distance} units")
             self.game.display_board()
             
             # check for win condition
