@@ -69,6 +69,9 @@ class RushHourSolver:
         untill the red vehicle is at the desired exit spot.
         """
 
+        # Count total moves made
+        moves_counter = 0
+        
         # we loop through our set maximum iterations
         for iteration in range(max_iterations):
 
@@ -92,13 +95,16 @@ class RushHourSolver:
             # move the vehicle to the new place on the board
             self.game.move_vehicle(vehicle_name, distance)
 
+            # Count total moves
+            moves_counter += 1
+            
             # Print the current/new state of the board
-            print(f"Move {iteration + 1}: Move {vehicle_name} by {distance} units")
+            print(f"Iteration: {iteration + 1}, Move: {moves_counter}:\nVehicle {vehicle_name} by {distance} units")
             self.game.display_board()
             
             # check for win condition
             if self.game.check_win():
-                print(f"Puzzle solved in {iteration + 1} iterations!")
+                print(f"Puzzle solved in {moves_counter} moves!")
                 self.game.display_board()
                 return
         print("Failed to solve the puzzle within the maximum number of iterations.")
