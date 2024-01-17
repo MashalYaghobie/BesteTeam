@@ -9,25 +9,33 @@ class RushHourSolver:
 
     def get_possible_moves(self, vehicle):
         """Generate all possible moves for a given vehicle."""
+        board_size = len(self.game.board)
         # store the moves in a list
         moves = []
         if vehicle.orientation == 'H':
             # loop over the columns
-            for col in range(6 - vehicle.length + 1):
+            for col in range(6 - vehicle.length + 1): # TODO: avoid hardcoding these values
                 # check if the vehicle can move there
                 if self.game.is_move_valid(vehicle, vehicle.row, col):
-                    # add the move to the list
-                    moves.append((vehicle.row, col))
+                    # calculate the distance
+                    distance = col - vehicle.col
+                    # exclude moves with 0 distance
+                    if distance != 0:
+                        # add the move to the list
+                        moves.append((vehicle.row, col))
         else:
-            for row in range(6 - vehicle.length + 1):
+            for row in range(6 - vehicle.length + 1): # TODO: avoid hardcoding these values
                 if self.game.is_move_valid(vehicle, row, vehicle.col):
-                    moves.append((row, vehicle.col))
+                    # calculate the distance
+                    distance = row - vehicle.row
+                    if distance != 0:
+                        moves.append((row, vehicle.col))
         return moves
 
 
-    def solve_randomly(self, max_iterations=1000):
+    def solve_randomly(self, max_iterations=1000000000):
         """Attempt to solve the puzzle with random moves."""
-        for _ in range(max_iterations):
+        for iteration in range(max_iterations):
             # choose a random vehicle
             vehicle_name = random.choice(list(self.game.vehicles.keys()))
             vehicle = self.game.vehicles[vehicle_name]
@@ -41,9 +49,12 @@ class RushHourSolver:
             distance = new_col - vehicle.col if vehicle.orientation == 'H' else new_row - vehicle.row
             # move the vehicle
             self.game.move_vehicle(vehicle_name, distance)
+            # Print the current state of the board
+            print(f"Move {iteration + 1}: Move {vehicle_name} by {distance} units")
+            self.game.display_board()
             # check for win condition
             if self.game.check_win():
-                print(f"Puzzle solved in {_ + 1} iterations!")
+                print(f"Puzzle solved in {iteration + 1} iterations!")
                 self.game.display_board()
                 return
         print("Failed to solve the puzzle within the maximum number of iterations.")
@@ -51,6 +62,6 @@ class RushHourSolver:
 
 if __name__ == "__main__":
     game = RushHour('gameboards/Rushhour6x6_1.csv')
-    
+
     solver = RushHourSolver(game)
     solver.solve_randomly()

@@ -107,24 +107,43 @@ class RushHour:
         """
         board_size = len(self.board)
 
+        # Check move validity for a horizontally oriented vehicle
         if vehicle.orientation == 'H':
-            # Check if the horizontal move is within the horizontal bounds
+            # First, check if the new position is within horizontal bounds
             if new_col < 0 or new_col + vehicle.length > board_size:
                 return False
-                # Check each cell for collisions, excluding the vehicle's current cells
-            for col in range(new_col, new_col + vehicle.length):
-                if self.board[vehicle.row][col] != '.' and col not in range(vehicle.col, vehicle.col + vehicle.length):
-                    return False
 
-        else: # Vertical orientation
-            # Check if the vertical move is within the vertical bounds
+            # Determine the start and end columns of the vehicle's path
+            start_col = min(vehicle.col, new_col)
+            end_col = max(vehicle.col + vehicle.length - 1, new_col + vehicle.length - 1)
+
+            # Check each cell in the path for obstructions
+            for col in range(start_col, end_col + 1):
+                # Skip the vehicle's current position
+                if col < vehicle.col or col >= vehicle.col + vehicle.length:
+                    # If any cell in the path is not empty, the move is invalid
+                    if self.board[vehicle.row][col] != '.':
+                        return False
+
+        # Check move validity for a vertically oriented vehicle
+        else:
+            # First, check if the new position is within vertical bounds
             if new_row < 0 or new_row + vehicle.length > board_size:
                 return False
-            # Check each cell for collisions, excluding the vehicle's current cells
-            for row in range(new_row, new_row + vehicle.length):
-                if self.board[row][vehicle.col] != '.' and row not in range(vehicle.row, vehicle.row + vehicle.length):
-                    return False
 
+            # Determine the start and end rows of the vehicle's path
+            start_row = min(vehicle.row, new_row)
+            end_row = max(vehicle.row + vehicle.length - 1, new_row + vehicle.length - 1)
+
+            # Check each cell in the path for obstructions
+            for row in range(start_row, end_row + 1):
+                # Skip the vehicle's current position
+                if row < vehicle.row or row >= vehicle.row + vehicle.length:
+                    # If any cell in the path is not empty, the move is invalid
+                    if self.board[row][vehicle.col] != '.':
+                        return False
+
+        # If no obstructions are found, the move is valid
         return True
 
 
