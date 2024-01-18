@@ -25,7 +25,7 @@ class Vehicle:
         self.row = start_row
         self.col = start_col
 
-
+        
 
 class RushHour:
     """
@@ -53,6 +53,22 @@ class RushHour:
         # Call function
         self.read_all_vehicles()
 
+        initial_positions = {}
+
+    def reset(self):
+        """
+        Reset the game board and its state to the initial configuration.
+        """
+        # Reset the board to its initial state
+        self.board = [['.' for _ in range(len(self.board))] for _ in range(len(self.board))]
+
+        # Reset the vehicles dictionary to its initial state
+        self.vehicles = {}
+
+        # Re-add all vehicles to the board
+        self.read_all_vehicles()
+        
+
     def read_all_vehicles(self):
         """
         In this method we read the input-file and create the variables
@@ -72,6 +88,7 @@ class RushHour:
 
             # Adds the vehicle to dictionary and places it on the board
             self.add_vehicle(Vehicle(name, length, orientation, start_row, start_col))
+
 
     def add_vehicle(self, vehicle):
         """
@@ -288,6 +305,9 @@ class RushHour:
         This allows easy comparisons between board states.
         """
         return ''.join(''.join(row) for row in self.board)
+    
+
+    
 
 
 if __name__ == "__main__":

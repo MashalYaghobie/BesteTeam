@@ -1,6 +1,7 @@
 # baseline.py
 import random
 from rush_hour import RushHour
+import matplotlib.pyplot as plt
 
 class RushHourSolver:
     """
@@ -16,7 +17,7 @@ class RushHourSolver:
         In this method we generate / get all the possible moves for any
         vehicle and add those moves to a list.
         """
-        
+
         board_size = len(self.game.board)
 
         # create a list where we will store all moves
@@ -39,7 +40,7 @@ class RushHourSolver:
 
                         # add the move to the list
                         moves.append((vehicle.row, col))
-        
+
         # for all the vehicles that are vertically oriented
         else:
 
@@ -71,7 +72,7 @@ class RushHourSolver:
 
         # Count total moves made
         moves_counter = 0
-        
+
         # we loop through our set maximum iterations
         for iteration in range(max_iterations):
 
@@ -97,21 +98,33 @@ class RushHourSolver:
 
             # Count total moves
             moves_counter += 1
-            
-            # Print the current/new state of the board
+
+            #Print the current/new state of the board
             print(f"Iteration: {iteration + 1}, Move: {moves_counter}\nVehicle {vehicle_name} by {distance} units")
             self.game.display_board()
-            
+
             # check for win condition
             if self.game.check_win():
                 print(f"Puzzle solved in {moves_counter} moves!")
                 self.game.display_board()
-                return
+                return moves_counter
+        return None
         print("Failed to solve the puzzle within the maximum number of iterations.")
 
+    def perform_experiments(self, num_experiments = 10000, max_iterations = 100000):
+        results = []
+        for game in range(num_experiments):
+            # reset game for each experiment
+            self.game.reset()
+            result = self.solve_randomly(max_iterations)
+            if result is not None:
+                results.append(result)
+
+        return results
 
 if __name__ == "__main__":
     game = RushHour('gameboards/Rushhour6x6_1.csv')
 
     solver = RushHourSolver(game)
+
     solver.solve_randomly()
