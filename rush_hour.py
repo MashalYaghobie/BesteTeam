@@ -1,4 +1,5 @@
 import pandas as pd
+import os
 
 
 class Vehicle:
@@ -312,7 +313,30 @@ class RushHour:
 
 if __name__ == "__main__":
     # initialize and set up the game
-    game = RushHour('gameboards/Rushhour6x6_1.csv')
+    gameboards = [file for file in os.listdir('gameboards/')]
+    
+    # Display the gameboards files with numbers
+    for number, file in enumerate(gameboards, 1):
+        print(f"{number}: {file}")
+    
+    # Keep asking until user gives correct integer
+    while True:
+        
+        # Ask user for an integer
+        choice = int(input("Enter the number of the gameboard you want to play:"))
+        
+        # Check whether integer is correct and use integer to setup the game
+        if 1 <= choice <= 7: 
+            file_chosen = os.path.join('gameboards', gameboards[choice-1])
+            game = RushHour(file_chosen)
 
-    # Start the game
-    game.play_game()
+            # Start the game
+            game.play_game()
+
+            break
+            
+        else:
+            print("Invalid choice! Please choose a correct number!")
+            
+            
+            
