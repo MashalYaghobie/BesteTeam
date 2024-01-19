@@ -19,7 +19,7 @@ class RushHourSolver:
         """
 
         board_size = len(self.game.board)
-
+        print(board_size)
         # create a list where we will store all moves
         moves = []
 
@@ -123,7 +123,7 @@ class RushHourSolver:
         return results
 
 if __name__ == "__main__":
-    game = RushHour('gameboards/Rushhour6x6_1.csv')
+    game = RushHour()
 
     solver = RushHourSolver(game)
 
