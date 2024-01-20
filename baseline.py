@@ -1,5 +1,6 @@
 # baseline.py
 import random
+import time
 from rush_hour import RushHour
 import matplotlib.pyplot as plt
 
@@ -70,10 +71,11 @@ class RushHourSolver:
         of solving the rush hour board by repeatedly doing random moves
         untill the red vehicle is at the desired exit spot.
         """
-
+        
         # Count total moves made
         moves_counter = 0
-
+        start_time = time.time()
+        
         # we loop through our set maximum iterations
         for iteration in range(max_iterations):
 
@@ -106,7 +108,7 @@ class RushHourSolver:
 
             # check for win condition
             if self.game.check_win():
-                print(f"Puzzle solved in {moves_counter} moves!")
+                print(f"Puzzle solved in {moves_counter} moves! Time needed: {time.time() - start_time}")
                 self.game.display_board()
                 return moves_counter
         return None
