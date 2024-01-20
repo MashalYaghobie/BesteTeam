@@ -28,7 +28,7 @@ class RushHourSolver:
         if vehicle.orientation == 'H':
 
             # loop over the columns
-            for col in range(6 - vehicle.length + 1): # TODO: avoid hardcoding these values
+            for col in range(board_size - vehicle.length + 1): 
 
                 # check if the vehicle is allowed to move there
                 if self.game.is_move_valid(vehicle, vehicle.row, col):
@@ -46,7 +46,7 @@ class RushHourSolver:
         else:
 
             # loop over the rows
-            for row in range(6 - vehicle.length + 1): # TODO: avoid hardcoding these values
+            for row in range(board_size - vehicle.length + 1): 
 
                 # check if the vehicle is allowed to move here
                 if self.game.is_move_valid(vehicle, row, vehicle.col):
