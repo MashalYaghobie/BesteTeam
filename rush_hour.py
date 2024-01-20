@@ -284,9 +284,7 @@ class RushHour:
             
             else:
                 print("Invalid choice! Please choose a correct number!")
-            
-        # Start the game
-        self.play_game()
+
 
     def play_game(self):
         """
@@ -349,8 +347,9 @@ if __name__ == "__main__":
     # initialize and set up the game
     game = RushHour()
     
-    # Start the game
+    # Start and play the game
     game.start_game()
+    game.play_game()
 
             
             

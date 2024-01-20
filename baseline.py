@@ -12,6 +12,7 @@ class RushHourSolver:
     def __init__(self, game):
         self.game = game
 
+        
     def get_possible_moves(self, vehicle):
         """
         In this method we generate / get all the possible moves for any
@@ -19,7 +20,7 @@ class RushHourSolver:
         """
 
         board_size = len(self.game.board)
-        print(board_size)
+        
         # create a list where we will store all moves
         moves = []
 
@@ -111,6 +112,7 @@ class RushHourSolver:
         return None
         print("Failed to solve the puzzle within the maximum number of iterations.")
 
+        
     def perform_experiments(self, num_experiments = 10000, max_iterations = 100000):
         results = []
         for game in range(num_experiments):
@@ -122,9 +124,13 @@ class RushHourSolver:
 
         return results
 
+    
 if __name__ == "__main__":
     game = RushHour()
-
+    
+    game.start_game()
+    
     solver = RushHourSolver(game)
-
+    
     solver.solve_randomly()
+    
