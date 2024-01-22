@@ -4,7 +4,12 @@ from rush_hour import RushHour, Vehicle
 
 
 class BreadthFirstSearch:
-
+    
+    
+    def __init__(self, game):
+        self.game = game
+    
+    
     def play_breadth_first_search(self):
         """
         In this method we use Breadth First Search to win a game of Rush Hour
@@ -15,7 +20,7 @@ class BreadthFirstSearch:
         queue_bfs = Queue()
 
         # Add the starting state
-        starting_state = self.get_state()
+        starting_state = self.game.get_state()
         queue_bfs.put(starting_state)
 
         # Keep track of all the states we have already visited
@@ -29,12 +34,12 @@ class BreadthFirstSearch:
             current_state = queue_bfs.get()
 
             # Check if we have won / finished the game
-            if self.check_win():
+            if self.game.check_win():
                 print(f"Congratulations! You've won!")
                 return
 
             # Create possible moves
-            for vehicle_id, vehicle in self.vehicles.items():
+            for vehicle_id, vehicle in self.game.vehicles.items():
                 for distance in [-1, 1]:
 
                     # Try to move the vehicle to both sides
@@ -56,11 +61,11 @@ class BreadthFirstSearch:
         copy_of_game = copy.deepcopy(self)
 
         # Try to move the vehicle
-        if vehicle_id in copy_of_game.vehicles:
-            copy_of_game.move_vehicle(vehicle_id, distance)
+        if vehicle_id in copy_of_game.game.vehicles:
+            copy_of_game.game.move_vehicle(vehicle_id, distance)
 
             # and get the new game state after the move
-            return copy_of_game.get_state()
+            return copy_of_game.game.get_state()
 
             # if the move is invalid we return None
         else:
@@ -73,4 +78,7 @@ if __name__ == "__main__":
 
     # start and play the game with our breadth first search algorithm
     game.start_game()
-    game.play_breadth_first_search()
+    
+    bfs = BreadthFirstSearch(game)
+    
+    bfs.play_breadth_first_search()
