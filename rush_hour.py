@@ -1,4 +1,5 @@
 import pandas as pd
+import os
 
 
 class Vehicle:
@@ -38,18 +39,18 @@ class RushHour:
     check if the game is done.
     """
 
-    def __init__(self, file):
+    def __init__(self):
         """
         In this method we read the csv file,initialize the board
         for the rush hour game, add vehicle-instances to a dictionary.
         """
 
         # Read the csv file and get size of board
-        self.rush_hour_file = pd.read_csv(file)
-        size_board = max(self.rush_hour_file['col'])
+        self.rush_hour_file = None
+        size_board = 0
 
         # Create the board with dots for the desired boardsize
-        self.board = [['.' for _ in range(size_board)] for _ in range(size_board)]
+        self.board = None
 
         # Create a new dictionary for the vehicle-instances
         self.vehicles = {}
@@ -59,6 +60,7 @@ class RushHour:
 
         # keep track of game state
         self.previous_state = self.get_state()
+
 
     def reset(self):
         """
@@ -124,6 +126,7 @@ class RushHour:
         for row in self.board:
             print(' '.join(row))
         print()
+
 
     def is_move_valid(self, vehicle, new_row, new_col):
         """
@@ -266,6 +269,39 @@ class RushHour:
         return False
 
 
+    def start_game(self):
+        # initialize and set up the game
+        gameboards = [file for file in os.listdir('gameboards/')]
+
+        # Display the gameboards files with numbers
+        for number, file in enumerate(gameboards, 1):
+            print(f"{number}: {file}")
+
+        # Keep asking until user gives correct integer
+        while True:
+
+            # Ask user for an integer
+            choice = int(input("Enter the number of the gameboard you want to play:"))
+
+            # Check whether integer is correct and use integer to read the file
+            if 1 <= choice <= 7:
+                file_chosen = os.path.join('gameboards', gameboards[choice-1])
+                self.rush_hour_file = pd.read_csv(file_chosen)
+
+                # Initialize board based off file
+                size_board = max(self.rush_hour_file['col'])
+                self.board = [['.' for _ in range(size_board)] for _ in range(size_board)]
+
+                # Initialize dictionaries and function
+                self.vehicles = {}
+                self.read_all_vehicles()
+                self.initial_positions = {}
+                break
+
+            else:
+                print("Invalid choice! Please choose a correct number!")
+
+
     def play_game(self):
         """
         In this method we create the ability to play the game by calling
@@ -325,9 +361,10 @@ class RushHour:
 
 if __name__ == "__main__":
     # initialize and set up the game
-    game = RushHour('gameboards/Rushhour6x6_1.csv')
+    game = RushHour()
 
-    # Start the game
+    # Start and play the game
+    game.start_game()
     game.play_game()
 
     while not check_win():

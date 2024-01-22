@@ -1,5 +1,6 @@
 # baseline.py
 import random
+import time
 from rush_hour import RushHour
 import matplotlib.pyplot as plt
 
@@ -13,6 +14,7 @@ class RushHourSolver:
         self.game = game
         self.visualizer = visualizer
 
+        
     def get_possible_moves(self, vehicle):
         """
         In this method we generate / get all the possible moves for any
@@ -20,7 +22,7 @@ class RushHourSolver:
         """
 
         board_size = len(self.game.board)
-
+        
         # create a list where we will store all moves
         moves = []
 
@@ -28,7 +30,7 @@ class RushHourSolver:
         if vehicle.orientation == 'H':
 
             # loop over the columns
-            for col in range(6 - vehicle.length + 1): # TODO: avoid hardcoding these values
+            for col in range(board_size - vehicle.length + 1): 
 
                 # check if the vehicle is allowed to move there
                 if self.game.is_move_valid(vehicle, vehicle.row, col):
@@ -46,7 +48,7 @@ class RushHourSolver:
         else:
 
             # loop over the rows
-            for row in range(6 - vehicle.length + 1): # TODO: avoid hardcoding these values
+            for row in range(board_size - vehicle.length + 1): 
 
                 # check if the vehicle is allowed to move here
                 if self.game.is_move_valid(vehicle, row, vehicle.col):
@@ -70,10 +72,11 @@ class RushHourSolver:
         of solving the rush hour board by repeatedly doing random moves
         untill the red vehicle is at the desired exit spot.
         """
-
-        # Count total moves made
+        
+        # Count total moves made and keep track of time
         moves_counter = 0
-
+        start_time = time.time()
+        
         # we loop through our set maximum iterations
         for iteration in range(max_iterations):
 
@@ -110,12 +113,13 @@ class RushHourSolver:
 
             # check for win condition
             if self.game.check_win():
-                print(f"Puzzle solved in {moves_counter} moves!")
+                print(f"Puzzle solved in {moves_counter} moves! Time needed: {time.time() - start_time}")
                 self.game.display_board()
                 return moves_counter
         return None
         print("Failed to solve the puzzle within the maximum number of iterations.")
 
+        
     def perform_experiments(self, num_experiments = 10000, max_iterations = 100000):
         results = []
         for game in range(num_experiments):
@@ -127,9 +131,13 @@ class RushHourSolver:
 
         return results
 
+    
 if __name__ == "__main__":
-    game = RushHour('gameboards/Rushhour6x6_1.csv')
-
+    game = RushHour()
+    
+    game.start_game()
+    
     solver = RushHourSolver(game)
-
+    
     solver.solve_randomly()
+    

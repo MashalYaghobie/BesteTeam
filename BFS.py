@@ -58,7 +58,7 @@ class RusHourBFS(RushHour):
             # if current state has a parent, it's added to 'parents' with the move that led to it
             if parent_state:
                 parents[current_state] = (parent_state, move_made)
-                
+
             # get all possible moves from current state
                 for vehicle_id, distance in self.get_all_possible_moves()
                 # apply move and check new state
@@ -66,22 +66,22 @@ class RusHourBFS(RushHour):
                     new_state = self.get_state()
                     # revert move after getting the state
                     self.move_vehicle(vehicle_id, -distance)
-                    
+
                     # if new state not visited, add it to the queue
                     if new_state not in visisted:
                         queue.append((new_state, current_state, (vehicle_id, distance)))
-                        
+
     def get_all_possible_moves(self):
         """Generate all possible valid moves from the current state"""
         moves = []
         for vehicle_id, vehicle in self.vehicles.items():
             # check possible moves in both directions
             for distance in [-1, 1]:
-                if self.is_move_valid(vehicle, vehicle.row + (distance if vehicle.orientation == 'V' else 0), 
+                if self.is_move_valid(vehicle, vehicle.row + (distance if vehicle.orientation == 'V' else 0),
                                       vehicle.col + (distance if vehicle.orientation == 'H' else 0)):
                     moves.append((vehicle_id, distance))
         return moves
-    
+
     def reconstruct_path(self, parents, state):
         """Reconstructs the path from the initial state to the winning state."""
         path = []
@@ -91,17 +91,17 @@ class RusHourBFS(RushHour):
             state = parent_state
         path.reverse()
         return path
-                    
-                
-                
-    
-            
-            
 
 
-            
-    
-        
+
+
+
+
+
+
+
+
+
 
 
 
@@ -132,7 +132,7 @@ class breadth_first_search:
 
         # Implement breadth first search
         while not queue_bfs.empty():
-            
+
             # Get the current state from the bfs queue
             current_state = queue_bfs.get()
 
@@ -145,10 +145,10 @@ class breadth_first_search:
                 print(f"Congratulations! You've won!")
                 return
 
-            # Create possible moves 
+            # Create possible moves
             for vehicle_id, vehicle in self.vehicles.items():
                 for distance in [-1, 1]:
-                    
+
                     # Try to move the vehicle to both sides
                     new_state = self.get_new_state_after_move(vehicle_id, distance)
 
