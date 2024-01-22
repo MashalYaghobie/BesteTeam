@@ -9,8 +9,9 @@ class RushHourSolver:
     """
 
     # this method initializes the game
-    def __init__(self, game):
+    def __init__(self, game, visualizer=None):
         self.game = game
+        self.visualizer = visualizer
 
     def get_possible_moves(self, vehicle):
         """
@@ -95,6 +96,10 @@ class RushHourSolver:
 
             # move the vehicle to the new place on the board
             self.game.move_vehicle(vehicle_name, distance)
+
+            # visualizer
+            if self.visualizer:
+                self.visualizer.update_board(vehicle_name)
 
             # Count total moves
             moves_counter += 1

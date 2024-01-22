@@ -25,7 +25,11 @@ class Vehicle:
         self.row = start_row
         self.col = start_col
 
-        
+        # store old position
+        self.old_row = None
+        self.old_col = None
+
+
 
 class RushHour:
     """
@@ -53,7 +57,8 @@ class RushHour:
         # Call function
         self.read_all_vehicles()
 
-        initial_positions = {}
+        # keep track of game state
+        self.previous_state = self.get_state()
 
     def reset(self):
         """
@@ -67,7 +72,7 @@ class RushHour:
 
         # Re-add all vehicles to the board
         self.read_all_vehicles()
-        
+
 
     def read_all_vehicles(self):
         """
@@ -95,7 +100,7 @@ class RushHour:
         In this method we add vehicles to the game and place them
         on the desired place on the board.
         """
-        
+
         # We add the vehicle to the dictionary
         self.vehicles[vehicle.name] = vehicle
 
@@ -180,54 +185,62 @@ class RushHour:
 
         # create a vehicle variable from the dictionary using its id
         vehicle = self.vehicles[vehicle_id]
-        new_row, new_col = vehicle.row, vehicle.col
+        # Save the old position before making the move
+        vehicle.old_row = vehicle.row
+        vehicle.old_col = vehicle.col
 
         # check if the vehicle is horizontal oriented
         if vehicle.orientation == 'H':
 
             # calculate new column position
-            new_col += distance
+            new_col = vehicle.col + distance
 
             # check if the move is valid
-            if self.is_move_valid(vehicle, new_row, new_col):
-
-                # clear the current position of the vehicle
+            if self.is_move_valid(vehicle, vehicle.row, new_col):
+                # clear the old position
                 for i in range(vehicle.length):
-                    self.board[vehicle.row][vehicle.col + i] = '.'
+                    self.board[vehicle.row][vehicle.old_col + i] = '.'
 
-                # update vehicle position to the new position
+                # update vehicle position
                 vehicle.col = new_col
 
                 # place the vehicle at new position
                 for i in range(vehicle.length):
                     self.board[vehicle.row][vehicle.col + i] = vehicle.name
+                # return True to indicate succesful move
+                return True
 
             else:
                 print("Invalid move")
+                # invalid move
+                return False
 
         # if the vehicle is vertical oriented
         else:
 
             # calculate the new row position
-            new_row += distance
+            new_row = vehicle.row + distance
 
             # check if the move is valid
-            if self.is_move_valid(vehicle, new_row, new_col):
+            if self.is_move_valid(vehicle, new_row, vehicle.col):
+                # clear the old position
+                for i in range(vehicle.length):
+                    self.board[vehicle.old_row + i][vehicle.col] = '.'
 
-                    # clear the current position of the vehicle
-                    for i in range(vehicle.length):
-                        self.board[vehicle.row + i][vehicle.col] = '.'
+                # update the vehicle position to the new position
+                vehicle.row = new_row
 
-                    # update the vehicle position to the new position
-                    vehicle.row = new_row
+                # place the vehicle at the new position
+                for i in range(vehicle.length):
+                    self.board[vehicle.row + i][vehicle.col] = vehicle.name
 
-                    # place the vehicle at the new position
-                    for i in range(vehicle.length):
-                        self.board[vehicle.row + i][vehicle.col] = vehicle.name
+                return True
 
             # otherwise give an error
             else:
                 print("Invalid move.")
+                return False
+
 
 
     def check_win(self):
@@ -305,9 +318,9 @@ class RushHour:
         This allows easy comparisons between board states.
         """
         return ''.join(''.join(row) for row in self.board)
-    
 
-    
+
+
 
 
 if __name__ == "__main__":
@@ -316,3 +329,6 @@ if __name__ == "__main__":
 
     # Start the game
     game.play_game()
+
+    while not check_win():
+        print(game.get_state())
