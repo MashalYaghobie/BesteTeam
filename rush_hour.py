@@ -145,7 +145,7 @@ class RushHour:
                 if col < vehicle.col or col >= vehicle.col + vehicle.length:
 
                     # If there is any cell in the vehicles path that is not empty the move is not valid
-                    if self.board[vehicle.row][col] != '.':
+                    if self.board[vehicle.row][col] != '.' and col != vehicle.col:
                         return False
 
         # Check if the move is valid for a vertically oriented vehicle
@@ -166,7 +166,7 @@ class RushHour:
                 if row < vehicle.row or row >= vehicle.row + vehicle.length:
 
                     # If there is any cell in the vehicles path that is not empty the move is not valid
-                    if self.board[row][vehicle.col] != '.':
+                    if self.board[row][vehicle.col] != '.' and row != vehicle.row:
                         return False
 
         # If there are no vehicles in the way, the move is valid
@@ -268,7 +268,8 @@ class RushHour:
             choice = int(input("Enter the number of the gameboard you want to play:"))
         
             # Check whether integer is correct and use integer to read the file
-            if 1 <= choice <= 7: 
+            # SHOULD BE CHANGED IN THE FUTURE
+            if 1 <= choice <= 8:
                 file_chosen = os.path.join('gameboards', gameboards[choice-1])
                 self.rush_hour_file = pd.read_csv(file_chosen)
                 
@@ -280,12 +281,13 @@ class RushHour:
                 self.vehicles = {}
                 self.read_all_vehicles()
                 self.initial_positions = {}
+                
                 break
-            
+      
             else:
                 print("Invalid choice! Please choose a correct number!")
 
-
+  
     def play_game(self):
         """
         In this method we create the ability to play the game by calling
@@ -339,7 +341,74 @@ class RushHour:
         """
         return ''.join(''.join(row) for row in self.board)
     
+### ADDING CODE FOR BFS 
 
+    def load_state(self, state):
+        """
+        Load the state of the board based on the provided state string.
+        """
+        index = 0
+        for i in range(len(self.board)):
+            for j in range(len(self.board[i])):
+                self.board[i][j] = state[index]
+                index += 1
+
+    def copy(self):
+        """
+        Create a copy of the current game state.
+        """
+        new_game = RushHour()
+        new_game.board = [row.copy() for row in self.board]
+        new_game.vehicles = {key: Vehicle(vehicle.name, vehicle.length, vehicle.orientation, vehicle.row, vehicle.col)
+                             for key, vehicle in self.vehicles.items()}
+        return new_game
+    
+    
+    def get_possible_moves(self, vehicle):
+        board_size = len(self.board)
+        
+        # create a list where we will store all moves
+        moves = []
+
+        # check if the vehicle is oriented horizontally
+        if vehicle.orientation == 'H':
+
+            # loop over the columns
+            for col in range(board_size - vehicle.length + 1): 
+
+                # check if the vehicle is allowed to move there
+                if self.is_move_valid(vehicle, vehicle.row, col):
+
+                    # calculate the distance for the move
+                    distance = col - vehicle.col
+
+                    # exclude moves with 0 distance
+                    if distance != 0:
+
+                        # add the move to the list
+                        moves.append((vehicle.row, col))
+
+        # for all the vehicles that are vertically oriented
+        else:
+
+            # loop over the rows
+            for row in range(board_size - vehicle.length + 1): 
+
+                # check if the vehicle is allowed to move here
+                if self.is_move_valid(vehicle, row, vehicle.col):
+
+                    # calculate the distance for the move
+                    distance = row - vehicle.row
+
+                    # exclude moves with 0 distance
+                    if distance != 0:
+
+                        # add the move to the list
+                        moves.append((row, vehicle.col))
+
+        # return the list with all the possible moves
+        return moves
+########################
     
 
 

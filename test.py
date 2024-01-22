@@ -6,82 +6,85 @@ import time
 import copy
 
 
-class BFS:
-    
-    def __init__(self, game):
-        self.game = game
-        
-    def get_possible_moves(self, vehicle):
-        moves = []
-        board_size = len(self.game.board)
+def breadth_first_search(game):
 
-        if vehicle.orientation == 'H':
-            for col in range(board_size - vehicle.length + 1):
-                if self.game.is_move_valid(vehicle, vehicle.row, col):
-                    distance = col - vehicle.col
-                    if distance != 0:
-                        moves.append((vehicle.name, distance))
-        else:
-            for row in range(board_size - vehicle.length + 1):
-                if self.game.is_move_valid(vehicle, row, vehicle.col):
-                    distance = row - vehicle.row
-                    if distance != 0:
-                        moves.append((vehicle.name, distance))
+    #Initialize the queue for BFS
+    queue = deque([(game.get_state(), 0)])
 
-        return moves
+    # Set to keep track of visited states
+    visited_states = set()
+
     
     
-    def breadth_First_Search(game):
-        
-        # get current time
-        start_time = time.time()
+    while queue:
+        # Dequeue the current state and its depth
+        current_state, depth = queue.popleft()
 
-        # initialize
-        boardsQueue = deque()
-        archive = {}
-        number = 0
+        # Load the current state into the game
+        game.load_state(current_state)
 
-        # put initial gameboard in queue
-        initial_board = Gameboard(copy.deepcopy(game))
-        boardsQueue.appendleft(initial_board)
+        # Check if the current state is the goal state
+        if game.check_win():
+            print("BFS found a solution with depth:", depth)
+            game.display_board()
+            return
 
-        # add initial gameboard to archive
-        archive[initial_board.get_state()] = 0
+        # Add the current state to the set of visited states
+        visited_states.add(current_state)
 
-        while len(boardsQueue) != 0:
-            # pop new board and path
-            current_board = boardsQueue.pop()
+        # Generate possible moves for all vehicles on the board
+        for vehicle_id, vehicle in game.vehicles.items():
+            possible_moves = game.get_possible_moves(vehicle)
+            
+            print(possible_moves)
+            
+            for move in possible_moves:
+                
+                print(f"Trying move {move} for vehicle {vehicle_id}")
+                
+                # Make a copy of the current game state
+                new_game = copy.deepcopy(game)
+                
+                
+                # ADDING CODE
+                new_row, new_col = move
+                distance = new_col - vehicle.col if vehicle.orientation == 'H' else new_row - vehicle.row
+                print(distance)
+                print(f"Checking validity: {new_game.is_move_valid(vehicle, new_row, new_col)}")
+                ############
+                
+                
+                # Move the vehicle in thew new game state
+                new_game.move_vehicle(vehicle_id, distance)
 
-            number += 1
-            # if board is solved, return result
-            if current_board.game.check_win():
-                print("found board")
-                return {"solvetime": time.time() - start_time, "nodes_popped": number, "archive": archive, "solution": current_board.game}
-
-            # else add all possible boards to queue, if they're not in archive
-            else:
-                for vehicle_id, distance in current_board.get_possible_moves(current_board.game.vehicles[vehicle_id]):
-                    new_rush_hour = copy.deepcopy(current_board.game)
-                    new_vehicle = new_rush_hour.vehicles[vehicle_id]
-                    new_rush_hour.move_vehicle(vehicle_id, distance)
-
-                    new_state = new_rush_hour.get_state()
-                    if new_state in archive:
-                        pass
-                    else:
-                        new_board = Gameboard(new_rush_hour)
-                        boardsQueue.appendleft(new_board)
-                        archive[new_state] = current_board.get_state()
+                # Get the new state of the game
+                new_state = new_game.get_state()
+                
+                new_game.display_board()
+                
+               
+                # Check if the new state has not been visited
+                if new_state not in visited_states:
                     
-                    
-# Example usage:
+                    # Enqueue the new state and its depth
+                    queue.append((new_state, depth + 1))
+                    visited_states.add(new_state)
+
+       
+    print("BFS did not find a solution.")
+
 if __name__ == "__main__":
-    # initialize and set up the game
+    # Initialize and set up the game
     game = RushHour()
 
     # Start and play the game
     game.start_game()
 
-    # Run breadth-first search
-    result = breadth_First_Search(game)
-    print(result)
+    # Use BFS to find a solution
+    breadth_first_search(game)
+    
+    
+    
+    
+    
+    
