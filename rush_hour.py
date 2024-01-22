@@ -22,7 +22,7 @@ class Vehicle:
         # Orientation will be H for horizontal and V for vertical
         self.orientation = orientation
 
-        # We set some starting values for the placement of each vehicle
+        # We set some starting values for the placement of each vehicle testst
         self.row = start_row
         self.col = start_col
 
