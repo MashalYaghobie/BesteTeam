@@ -72,7 +72,7 @@ class RushHourSolver:
         untill the red vehicle is at the desired exit spot.
         """
         
-        # Count total moves made
+        # Count total moves made and keep track of time
         moves_counter = 0
         start_time = time.time()
         
