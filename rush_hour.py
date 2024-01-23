@@ -56,10 +56,10 @@ class RushHour:
         self.vehicles = {}
 
         # Call function
-        self.read_all_vehicles()
+        #self.read_all_vehicles()
 
         # keep track of game state
-        self.previous_state = self.get_state()
+        #self.previous_state = self.get_state()
 
 
     def reset(self):
@@ -356,7 +356,8 @@ class RushHour:
         "...... ..AA.. ..B... .BB.C. ......"
         This allows easy comparisons between board states.
         """
-        return ''.join(''.join(row) for row in self.board)
+        delimiter = '|'
+        return delimiter.join(''.join(row) for row in self.board)
 
     
 ### ADDING CODE FOR BFS 

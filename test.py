@@ -43,7 +43,7 @@ def breadth_first_search(game):
                 print(f"Trying move {move} for vehicle {vehicle_id}")
                 
                 # Make a copy of the current game state
-                new_game = copy.deepcopy(game)
+                new_game = game.copy()
                 
                 
                 # ADDING CODE
