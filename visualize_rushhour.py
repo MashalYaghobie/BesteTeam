@@ -234,8 +234,8 @@ def select_board():
     return BOARD_FILES[board_size][board_index]
 
 def main():
-    game_file = select_board()
-    game = RushHour(game_file)
+    game = RushHour()
+    game.start_game()
     visualizer = RushHourVisualizer(game)
     # initial drawing of the board
     visualizer.initial_draw()
