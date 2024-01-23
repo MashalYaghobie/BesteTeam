@@ -1,7 +1,6 @@
 import pandas as pd
 import os
 
-
 class Vehicle:
     """
     In this class we will set the base variables or values for the
@@ -22,7 +21,7 @@ class Vehicle:
         # Orientation will be H for horizontal and V for vertical
         self.orientation = orientation
 
-        # We set some starting values for the placement of each vehicle testst
+        # We set some starting values for the placement of each vehicle
         self.row = start_row
         self.col = start_col
 
@@ -44,7 +43,8 @@ class RushHour:
         In this method we read the csv file,initialize the board
         for the rush hour game, add vehicle-instances to a dictionary.
         """
-
+        # Initialize an empty board or a default board state
+        self.board = [['.' for _ in range(6)] for _ in range(6)]  # Example default 6x6 board
         # Read the csv file and get size of board
         self.rush_hour_file = None
         size_board = 0
@@ -55,11 +55,15 @@ class RushHour:
         # Create a new dictionary for the vehicle-instances
         self.vehicles = {}
 
+
         # Call function
         self.read_all_vehicles()
 
         # keep track of game state
-        self.previous_state = self.get_state()
+        #self.previous_state = self.get_state()
+
+        self.initial_positions = {}
+
 
 
     def reset(self):
@@ -82,19 +86,19 @@ class RushHour:
         for the vehicles such as name, orientation, length, starting column
         and starting row. Furthermore we add the vehicle instance to the dictionary.
         """
+        if self.rush_hour_file is not None:
+            # Loops through the csv file and assigns the values to variables
+            for car in self.rush_hour_file.values:
+                name = car[0]
+                orientation = car[1]
 
-        # Loops through the csv file and assigns the values to variables
-        for car in self.rush_hour_file.values:
-            name = car[0]
-            orientation = car[1]
+                # We substract 1 because of indexing
+                start_col = car[2] - 1
+                start_row = car[3] - 1
+                length = car[4]
 
-            # We substract 1 because of indexing
-            start_col = car[2] - 1
-            start_row = car[3] - 1
-            length = car[4]
-
-            # Adds the vehicle to dictionary and places it on the board
-            self.add_vehicle(Vehicle(name, length, orientation, start_row, start_col))
+                # Adds the vehicle to dictionary and places it on the board
+                self.add_vehicle(Vehicle(name, length, orientation, start_row, start_col))
 
 
     def add_vehicle(self, vehicle):
@@ -153,7 +157,7 @@ class RushHour:
                 if col < vehicle.col or col >= vehicle.col + vehicle.length:
 
                     # If there is any cell in the vehicles path that is not empty the move is not valid
-                    if self.board[vehicle.row][col] != '.' and col != vehicle.col:
+                    if self.board[vehicle.row][col] != '.':
                         return False
 
         # Check if the move is valid for a vertically oriented vehicle
@@ -174,7 +178,7 @@ class RushHour:
                 if row < vehicle.row or row >= vehicle.row + vehicle.length:
 
                     # If there is any cell in the vehicles path that is not empty the move is not valid
-                    if self.board[row][vehicle.col] != '.' and row != vehicle.row:
+                    if self.board[row][vehicle.col] != '.':
                         return False
 
         # If there are no vehicles in the way, the move is valid
@@ -284,9 +288,7 @@ class RushHour:
             choice = int(input("Enter the number of the gameboard you want to play:"))
 
             # Check whether integer is correct and use integer to read the file
-            # SHOULD BE CHANGED IN THE FUTURE
-            if 1 <= choice <= 8:
-
+            if 1 <= choice <= len(gameboards):
                 file_chosen = os.path.join('gameboards', gameboards[choice-1])
                 self.rush_hour_file = pd.read_csv(file_chosen)
 
@@ -298,13 +300,11 @@ class RushHour:
                 self.vehicles = {}
                 self.read_all_vehicles()
                 self.initial_positions = {}
-                
-                break
 
             else:
                 print("Invalid choice! Please choose a correct number!")
 
-  
+
     def play_game(self):
         """
         In this method we create the ability to play the game by calling
@@ -341,93 +341,24 @@ class RushHour:
                 print("Invalid vehicle name. Please try again")
 
 
-    def get_state(self):
-        """
-        Method for getting a string representation of the current
-        state of the board.
-        Example: a board that looks like this:
-        . . . . . .
-        . . A A . .
-        . . B . . .
-        . B B . C .
-        . . . . C .
-        . . . . . .
-        will have a state string that looks like this:
-        "...... ..AA.. ..B... .BB.C. ......"
-        This allows easy comparisons between board states.
-        """
-        return ''.join(''.join(row) for row in self.board)
+    # def get_state(self):
+    #     """
+    #     Method for getting a string representation of the current
+    #     state of the board.
+    #     Example: a board that looks like this:
+    #     . . . . . .
+    #     . . A A . .
+    #     . . B . . .
+    #     . B B . C .
+    #     . . . . C .
+    #     . . . . . .
+    #     will have a state string that looks like this:
+    #     "...... ..AA.. ..B... .BB.C. ......"
+    #     This allows easy comparisons between board states.
+    #     """
+    #     return ''.join(''.join(row) for row in self.board)
 
-    
-### ADDING CODE FOR BFS 
 
-    def load_state(self, state):
-        """
-        Load the state of the board based on the provided state string.
-        """
-        index = 0
-        for i in range(len(self.board)):
-            for j in range(len(self.board[i])):
-                self.board[i][j] = state[index]
-                index += 1
-
-    def copy(self):
-        """
-        Create a copy of the current game state.
-        """
-        new_game = RushHour()
-        new_game.board = [row.copy() for row in self.board]
-        new_game.vehicles = {key: Vehicle(vehicle.name, vehicle.length, vehicle.orientation, vehicle.row, vehicle.col)
-                             for key, vehicle in self.vehicles.items()}
-        return new_game
-    
-    
-    def get_possible_moves(self, vehicle):
-        board_size = len(self.board)
-        
-        # create a list where we will store all moves
-        moves = []
-
-        # check if the vehicle is oriented horizontally
-        if vehicle.orientation == 'H':
-
-            # loop over the columns
-            for col in range(board_size - vehicle.length + 1): 
-
-                # check if the vehicle is allowed to move there
-                if self.is_move_valid(vehicle, vehicle.row, col):
-
-                    # calculate the distance for the move
-                    distance = col - vehicle.col
-
-                    # exclude moves with 0 distance
-                    if distance != 0:
-
-                        # add the move to the list
-                        moves.append((vehicle.row, col))
-
-        # for all the vehicles that are vertically oriented
-        else:
-
-            # loop over the rows
-            for row in range(board_size - vehicle.length + 1): 
-
-                # check if the vehicle is allowed to move here
-                if self.is_move_valid(vehicle, row, vehicle.col):
-
-                    # calculate the distance for the move
-                    distance = row - vehicle.row
-
-                    # exclude moves with 0 distance
-                    if distance != 0:
-
-                        # add the move to the list
-                        moves.append((row, vehicle.col))
-
-        # return the list with all the possible moves
-        return moves
-########################
-    
 
 
 
