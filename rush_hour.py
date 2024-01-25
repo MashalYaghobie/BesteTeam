@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 import copy
+import re
 
 
 class Vehicle:
@@ -31,6 +32,11 @@ class Vehicle:
         self.old_row = None
         self.old_col = None
 
+    def get_move_description(self, distance):
+        direction = 'right' if distance > 0 else 'left' if distance < 0 else 'none'
+        return f"Move car {self.name} {abs(distance)} step(s) to the {direction}"
+
+
 
 
 class RushHour:
@@ -40,26 +46,104 @@ class RushHour:
     check if the game is done.
     """
 
-    def __init__(self):
+    def __init__(self, start_game=True, board_size=None, board=None):
         """
         In this method we read the csv file,initialize the board
         for the rush hour game, add vehicle-instances to a dictionary.
         """
+        # print("Initializing RushHour instance")
+        # if start_game:
+        #     print("Starting game interactively")
+        # else:
+        #     print("Creating non-interactive RushHour instance for BFS")
 
-        # Read the csv file and get size of board
         self.rush_hour_file = None
+        if board_size is not None and board is not None:
+            self.board_size = board_size
+            self.board = board
+            self.vehicles = {}
+        else:
+            self.start_game()
+            self.initial_hashable_state = self.get_state_hashable()
 
-        # Call function for board size and game initialization
-        self.board_size = self.start_game()
+    def get_state_grid(self):
+        """
+        Return an NxN 2D list corresponding to this state.  Each
+        element has a number corresponding to the car that occupies
+        that cell, or is a -1 if the cell is empty
 
-        # Create a new dictionary for the vehicle-instances
-        self.vehicles = {}
+        Returns
+        -------
+        list of list: The grid of numbers for the state
+        """
+        grid = [[-1] * self.board_size for _ in range(self.board_size)]
 
-        # gameboard size
-        size_board = self.start_game()
+        for idx, vehicle in enumerate(self.vehicles.values()):
+            # Determine the direction of increment based on orientation
+            di, dj = (0, 1) if vehicle.orientation == 'H' else (1, 0)
 
-        # keep track of game state
-        self.state = State(list(self.vehicles.values()), self.board_size)
+            # Starting position of the vehicle
+            i, j = vehicle.row, vehicle.col
+
+            # Update grid cells occupied by this vehicle
+            for _ in range(vehicle.length):
+                grid[i][j] = idx
+                i += di
+                j += dj
+
+        return grid
+
+    def get_state_hashable(self):
+        """
+        Return a shorter string without line breaks that can be
+        used to hash the state
+
+        Returns
+        -------
+        string: A string representation of this state
+        """
+        s = ""
+        grid = self.get_state_grid()
+        for i in range(self.board_size):
+            for j in range(self.board_size):
+                s += "{}".format(grid[i][j])
+
+        #print(f"Hashable state: {s}")
+
+        return s
+
+    def clone(self):
+        """
+        Create a deep copy of the current RushHour game state.
+
+        Returns:
+        RushHour: A new RushHour object with the same state as the current one.
+        """
+        # Create a new RushHour instance without starting the game
+        cloned_game = RushHour(start_game=False)
+
+        # Set the board size and initialize the board based on this size
+        cloned_game.board_size = self.board_size
+        cloned_game.board = [['.' for _ in range(cloned_game.board_size)] for _ in range(cloned_game.board_size)]
+
+        # Deep copy each vehicle
+        cloned_game.vehicles = {}
+
+        print("Cloning game state...")
+
+        for name, vehicle in self.vehicles.items():
+
+            #print(f"Cloning vehicle: {vehicle.name}, Row: {vehicle.row}, Col: {vehicle.col}, Length: {vehicle.length}, Orientation: {vehicle.orientation}")
+
+            cloned_vehicle = Vehicle(vehicle.name, vehicle.length, vehicle.orientation, vehicle.row, vehicle.col)
+            cloned_game.vehicles[name] = cloned_vehicle
+            # Assuming add_vehicle adjusts the board, we call it here
+            cloned_game.add_vehicle(cloned_vehicle)
+
+            #print(f"Cloned vehicle: {cloned_vehicle.name}, Row: {cloned_vehicle.row}, Col: {cloned_vehicle.col}, Length: {cloned_vehicle.length}, Orientation: {cloned_vehicle.orientation}")
+
+        return cloned_game
+
 
     def reset(self):
         """
@@ -102,6 +186,8 @@ class RushHour:
         on the desired place on the board.
         """
 
+        #print(f"Adding vehicle {vehicle.name} at row {vehicle.row}, col {vehicle.col}")
+
         # We add the vehicle to the dictionary
         self.vehicles[vehicle.name] = vehicle
 
@@ -132,6 +218,9 @@ class RushHour:
         In this method we check if the vehicle is able to move to the
         inputed position without colliding with other vehicles.
         """
+
+        #print(f"Checking if move is valid for vehicle {vehicle.name} to row {new_row}, col {new_col}")
+
         board_size = len(self.board)
 
         # Check if the move is valid for a horizontally oriented vehicle
@@ -139,6 +228,7 @@ class RushHour:
 
             # Check if the new position is within our board size
             if new_col < 0 or new_col + vehicle.length > board_size:
+                #print("Move out of bounds")
                 return False
 
             # Get the start and end columns of the vehicles movement line / path
@@ -153,6 +243,7 @@ class RushHour:
 
                     # If there is any cell in the vehicles path that is not empty the move is not valid
                     if self.board[vehicle.row][col] != '.' and col != vehicle.col:
+                        #print(f"Collision at row {vehicle.row}, col {col}")
                         return False
 
         # Check if the move is valid for a vertically oriented vehicle
@@ -160,6 +251,7 @@ class RushHour:
 
             # Check if the new position is within our board size
             if new_row < 0 or new_row + vehicle.length > board_size:
+                #print("Move out of bounds")
                 return False
 
             # Get the start and end rows of the vehicles movement line / path
@@ -174,9 +266,11 @@ class RushHour:
 
                     # If there is any cell in the vehicles path that is not empty the move is not valid
                     if self.board[row][vehicle.col] != '.' and row != vehicle.row:
+                        #print(f"Collision at row {row}, col {vehicle.col}")
                         return False
 
         # If there are no vehicles in the way, the move is valid
+        #print("Move is valid")
         return True
 
 
@@ -209,13 +303,15 @@ class RushHour:
                 # place the vehicle at new position
                 for i in range(vehicle.length):
                     self.board[vehicle.row][vehicle.col + i] = vehicle.name
-                # update the game state
-                self.update_state()
+
+                # Debugging: Print updated hashable state
+                #print("Updated Hashable State:", self.get_state_hashable())
+
                 # return True to indicate succesful move
                 return True
 
             else:
-                print("Invalid move")
+                #print("Invalid move")
                 # invalid move
                 return False
 
@@ -238,17 +334,15 @@ class RushHour:
                 for i in range(vehicle.length):
                     self.board[vehicle.row + i][vehicle.col] = vehicle.name
 
-                # update the game state
-                self.update_state()
+                # Debugging: Print updated hashable state
+                #print("Updated Hashable State:", self.get_state_hashable())
+
                 return True
 
             # otherwise give an error
             else:
-                print("Invalid move.")
+                #print("Invalid move.")
                 return False
-
-    def update_state(self):
-        self.state = State(list(self.vehicles.values()), len(self.board))
 
 
     def check_win(self):
@@ -295,20 +389,31 @@ class RushHour:
                 file_chosen = os.path.join('gameboards', gameboards[choice-1])
                 self.rush_hour_file = pd.read_csv(file_chosen)
 
+                # Extract board size from file name
+                match = re.search(r'(\d+)x\d+', file_chosen)
+                if match:
+                    self.board_size = int(match.group(1))
+                else:
+                    raise ValueError("Unable to determine board size from file name")
+
+
                 # Initialize board based off file
-                size_board = max(self.rush_hour_file['col'])
-                self.board = [['.' for _ in range(size_board)] for _ in range(size_board)]
+                self.board = [['.' for _ in range(self.board_size)] for _ in range(self.board_size)]
+
 
                 # Initialize dictionaries and function
                 self.vehicles = {}
                 self.read_all_vehicles()
+
+                # Debugging: Print initial hashable state
+                #print("Initial Hashable State:", self.get_state_hashable())
+
                 self.initial_positions = {}
 
                 break
 
             else:
                 print("Invalid choice! Please choose a correct number!")
-        return size_board
 
 
     def play_game(self):
@@ -317,11 +422,13 @@ class RushHour:
         the defined methods.
         """
 
+
         # if the game has not been won yet we can still do additional moves
         while True:
 
             # display the board
             self.display_board()
+
 
             # ask for next move
             user_input = input("Enter your move (Name + distance, (format = A 1)): ")
@@ -347,115 +454,11 @@ class RushHour:
                 print("Invalid vehicle name. Please try again")
 
 
-    # def get_state(self):
-    #     """
-    #     Method for getting a string representation of the current
-    #     state of the board.
-    #     Example: a board that looks like this:
-    #     . . . . . .
-    #     . . A A . .
-    #     . . B . . .
-    #     . B B . C .
-    #     . . . . C .
-    #     . . . . . .
-    #     will have a state string that looks like this:
-    #     "...... ..AA.. ..B... .BB.C. ......"
-    #     This allows easy comparisons between board states.
-    #     """
-    #     delimiter = '|'
-    #     return delimiter.join(''.join(row) for row in self.board)
-
-
-### ADDING CODE FOR BFS
-
-class State:
-    def __init__(self, vehicles, N):
-        self.N = N # Our cars are on an NxN grid
-        self.cars = vehicles # list of vehicle objects
-        self.goal = [0, 0] # The state that our red car needs to reach
-        self.prev = None # Pointers to previous states (use later)
-
-    def clone(self):
-        """
-        Make a deep copy of this state
-
-        Return
-        ------
-        State: Deep copy of this state
-        """
-        return copy.deepcopy(self)
-
-    def get_state_grid(self):
-        """
-        Return an NxN 2D list corresponding to this state.  Each
-        element has a number corresponding to the car that occupies
-        that cell, or is a -1 if the cell is empty
-
-        Returns
-        -------
-        list of list: The grid of numbers for the state
-        """
-        grid = [[-1]*self.N for _ in range(self.N)]
-        for idx, vehicle in enumerate(self.cars):
-            di = 0
-            dj = 0
-            if vehicle.orientation == 'H':
-                dj = 1
-            else:
-                di = 1
-            i, j = vehicle.row, vehicle.col
-            for _ in range(vehicle.length):
-                grid[i][j] = idx
-                i += di
-                j += dj
-        return grid
-
-    def __str__(self):
-        """
-        Get a string representing the state
-
-        Returns
-        -------
-        string: A string representation of this state
-        """
-        s = ""
-        grid = self.get_state_grid()
-        for i in range(self.N):
-            for j in range(self.N):
-                s += "%5s"%grid[i][j]
-            s += "\n"
-        return s
-
-    def get_state_hashable(self):
-        """
-        Return a shorter string without line breaks that can be
-        used to hash the state
-
-        Returns
-        -------
-        string: A string representation of this state
-        """
-        s = ""
-        grid = self.get_state_grid()
-        for i in range(self.N):
-            for j in range(self.N):
-                s += "{}".format(grid[i][j])
-        return s
-
-
-
-
-
 
 if __name__ == "__main__":
-    # # initialize and set up the game
-    # game = RushHour()
-    #
-    # # Start and play the game
-    # game.start_game()
-    # game.play_game()
-    #
-    # while not check_win():
-    #     print(game.get_state())
+    # Initialize the game
+    game = RushHour()
 
-    state = State()
+    game.read_all_vehicles()
+
+    game.play_game()
