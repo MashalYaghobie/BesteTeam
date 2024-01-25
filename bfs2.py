@@ -1,76 +1,79 @@
 from queue import Queue
 import copy
-from rush_hour import RushHour, Vehicle
+from rush_hour import RushHour, Vehicle, State
 
+class RushHourBFS:
+    def __init__(self, initial_state):
+        self.initial_state = initial_state
 
-class BreadthFirstSearch:
-
-    def play_breadth_first_search(self):
+    def bfs(self):
         """
-        In this method we use Breadth First Search to win a game of Rush Hour
-        and find its winning state.
+        Perform the breadth-first search algorithm to find a solution to the Rush Hour game.
+
+        Returns:
+        list of State: The path from the initial state to the goal state, if a solution is found.
         """
+        # save visited states
+        visited = set()
+        # queue to manage BFS frontier
+        queue = Queue()
+        # add the initial state to the queue
+        queue.put(self.initial_state)
+        visited.add(self.initial_state.get_state_hashable())
 
-        # Set up the queue for breadth first search
-        queue_bfs = Queue()
+        while not queue.empty():
+            # dequeue the next state
+            current_state = queue.get()
 
-        # Add the starting state
-        starting_state = self.get_state()
-        queue_bfs.put(starting_state)
+            # check if current state is the goal state
+            if self.check_win(current_state):
+                # return the path to the solution
+                return self.backtrack_path(current_state)
 
-        # Keep track of all the states we have already visited
-        already_visited_states = set()
-        already_visited_states.add(starting_state)
+            # generate and enqueue all possible next states from the current state
+            for next_state in self.generate_next_states(current_state):
+                state_hash = next_state.get_state_hashable()
+                if state_hash not in visited:
+                    visited.add(state_hash)
+                    queue.put(next_state)
+                    # link states to backtrack the solution path
+                    next_state.prev = current_state
 
-        # Implement breadth first search
-        while not queue_bfs.empty():
-
-            # Get the current state from the bfs queue
-            current_state = queue_bfs.get()
-
-            # Check if we have won / finished the game
-            if self.check_win():
-                print(f"Congratulations! You've won!")
-                return
-
-            # Create possible moves
-            for vehicle_id, vehicle in self.vehicles.items():
-                for distance in [-1, 1]:
-
-                    # Try to move the vehicle to both sides
-                    new_state = self.get_new_state_after_move(vehicle_id, distance)
-
-                    # Make sure the new state is valid and that we have not visited it yet
-                    if new_state is not None and new_state not in already_visited_states:
-                        queue_bfs.put(new_state)
-                        already_visited_states.add(new_state)
-
-        print(f"We have not found a solution.")
-
-    def get_new_state_after_move(self, vehicle_id, distance):
+    def generate_next_states(self, current_state):
         """
-        In this method we get the new state after a move for a vehicle_id and a distance.
-        If the move is not valid we will return None
+        Generate all possible next states from the current state.
+
+        Parameters:
+        current_state (State): The current state of the game.
+
+        Returns:
+        list of State: A list of all possible next states.
         """
-        # Deepcopy the game state
-        copy_of_game = copy.deepcopy(self)
+        # Implement logic to generate next states
+        pass
 
-        # Try to move the vehicle
-        if vehicle_id in copy_of_game.vehicles:
-            copy_of_game.move_vehicle(vehicle_id, distance)
+    def check_win(self, state):
+        """
+        Check if the given state is a winning state.
 
-            # and get the new game state after the move
-            return copy_of_game.get_state()
+        Parameters:
+        state (State): The state to check.
 
-            # if the move is invalid we return None
-        else:
-            return None
+        Returns:
+        bool: True if it's a winning state, False otherwise.
+        """
+        # Implement logic to check for a winning state
+        pass
 
+    def backtrack_path(self, goal_state):
+        """
+        Backtrack from the goal state to the initial state to find the solution path.
 
-if __name__ == "__main__":
-    # initialize and set up the game
-    game = RushHour()
+        Parameters:
+        goal_state (State): The goal state from which to start backtracking.
 
-    # start and play the game with our breadth first search algorithm
-    game.start_game()
-    game.play_breadth_first_search()
+        Returns:
+        list of State: The path from the initial state to the goal state.
+        """
+        # Implement logic to backtrack and find the solution path
+        pass
