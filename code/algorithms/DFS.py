@@ -1,7 +1,7 @@
 import copy
-from rush_hour import State
+from ..rush_hour import State, RushHour
 
-def depth_first_search(starting_state, max_depth):
+def depth_first_search(starting_state, max_depth, game):
     """
     In this function we will create the depth first search algorithm
     for our rush hour case.
@@ -16,7 +16,7 @@ def depth_first_search(starting_state, max_depth):
         latest_state = stack.pop()
         # print(latest_state)
 
-        if depth_limit == 0:
+        if max_depth == 0:
             continue
 
         # stop condition for if the game has been finished
@@ -25,25 +25,27 @@ def depth_first_search(starting_state, max_depth):
             return True
         
         # create the child states and append them to our stack
-        for move in current_state.get_possible_moves():
+        for move in latest_state.get_possible_moves():
             child_state = latest_state + move
             stack.append(child_state)
 
         # call the function again for next depth/layer
-        depth_first_search(stack, depth_limit - 1)
+        depth_first_search(starting_state, max_depth - 1, game)
         
     return False
 
 
 if __name__ == "__main__":
+    # create the game
+    game = RushHour()
 
     # create the starting state
-    starting_state = State(vehicles, N)
+    starting_state = State(list(game.vehicles.values()), len(game.board))
 
     # set the depth limit
     depth_limit = 3
 
-    result = depth_first_search(starting_state, depth_limit)
+    result = depth_first_search(starting_state, depth_limit, game)
 
     if not result:
         print("Goal state has not been reached in the depth limit")
