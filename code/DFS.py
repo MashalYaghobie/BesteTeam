@@ -2,6 +2,11 @@ import copy
 from rush_hour import State
 
 def depth_first_search(starting_state, max_depth):
+    """
+    In this function we will create the depth first search algorithm
+    for our rush hour case.
+    """
+
     # add starting state to stack
     stack = [starting_state]
 
