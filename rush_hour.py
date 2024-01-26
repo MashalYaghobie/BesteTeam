@@ -65,7 +65,18 @@ class RushHour:
         else:
             self.start_game()
             self.initial_hashable_state = self.get_state_hashable()
+    
+    
+    def __lt__(self, other):
+        # Define how to compare two RushHour instances for less than
+        # This is necessary for heapq operations in PriorityQueue
+        return self.get_state_hashable() < other.get_state_hashable()
 
+    def __eq__(self, other):
+        # Define how to compare two RushHour instances for equality
+        return self.get_state_hashable() == other.get_state_hashable()
+    
+    
     def get_state_grid(self):
         """
         Return an NxN 2D list corresponding to this state.  Each
