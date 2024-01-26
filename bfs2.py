@@ -218,7 +218,7 @@ def clone_rush_hour_state(rush_hour_state):
 if __name__ == "__main__":
 
     rush_hour_game = RushHour()
-    rush_hour_game.start_game()
+    #rush_hour_game.start_game()
     initial_state_hash = rush_hour_game.get_state_hashable()
     #print(f"Initial state for BFS: {initial_state_hash}")
     solver = RushHourBFS(rush_hour_game)
