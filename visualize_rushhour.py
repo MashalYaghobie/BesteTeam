@@ -2,6 +2,7 @@ import turtle
 from rush_hour import RushHour
 from rush_hour import Vehicle
 from baseline import RushHourSolver
+from bfs2 import RushHourBFS
 
 # constants for the visuals
 MAX_WINDOW_SIZE = 600  # max size for the window
@@ -240,9 +241,9 @@ def main():
     # initial drawing of the board
     visualizer.initial_draw()
 
-    # visualize algorithm
-    solver = RushHourSolver(game, visualizer)
-    visualizer.solve_with_algorithm(solver)
+    # # visualize random algorithm
+    # solver = RushHourSolver(game, visualizer)
+    # visualizer.solve_with_algorithm(solver)
 
     # game loop
     # while not game.check_win():
@@ -258,6 +259,20 @@ def main():
     #
     # print("Congratulations! You've won!")
     # visualizer.window.mainloop()
+
+    # visualize BFS
+    solver = RushHourBFS(game)
+    solution_path = solver.bfs()
+    if solution_path:
+        for vehicle_id, distance in solution_path:
+            game.move_vehicle(vehicle_id, distance)
+            visualizer.update_board(vehicle_id)
+            print(f"Moved {vehicle_id} by {distance} steps")
+    else:
+        print("No solution found.")
+
+    if game.check_win():
+        print("Congratulations! You've won!")
 
 if __name__ == "__main__":
     main()
