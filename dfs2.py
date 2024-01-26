@@ -28,8 +28,34 @@ class RushHourDFS:
         # add the initial state to the visited set
         self.visited.add(self.initial_state.get_state_hashable())
 
-        # run dfs_recursive to explore possible moves
-        self.dfs_recursive(self.initial_state)
+        # create a stack for our iterative depth first search
+        stack = [self.initial_state]
+
+        # loop if the stack is not empty
+        while stack:
+
+            # get the top from the stack
+            current_state = stack.pop()
+
+            # append the top of the stack to the solution path
+            self.solution_path.append(current_state)
+            
+            # stop condition - check if we have won
+            if self.check_win(current_state):
+
+                # get out of the loop if we have found a solution
+                break
+
+            # create next states
+            for next_state in self.generate_next_states(current_state):
+                state_hash = next_state.get_state_hashable()
+
+                # check if those states are new states    
+                if state_hash not in self.visited:
+                    self.visited.add(state_hash)
+
+                    # put the state on the stack
+                    stack.append(next_state)
 
         # print the number of moves if we found a path
         if self.solution_path:
@@ -42,45 +68,6 @@ class RushHourDFS:
 
         # return the paht with our solution
         return self.solution_path
-
-    def dfs_recursive(self, current_state):
-        """
-        In this method we define a recursive method for our depth 
-        first search method. This method makes sure that we take a state from
-        the game as input and explores all the possible moves untill
-        we find a solution or reach a dead end.
-        """
-
-        # check if we have won the game
-        if self.check_win(current_state):
-
-            # then append the current state to the solution path
-            self.solution_path.append(current_state)
-
-            # return true if we have won with the current state
-            return True
-
-        # Then we create next states and explore further down the path
-        for next_state in self.generate_next_states(current_state):
-
-            # create the next state
-            state_hash = next_state.get_state_hashable()
-
-            # check if we have not seen this state before
-            if state_hash not in self.visited:
-
-                # save the state to the list with all previous explored states
-                self.visited.add(state_hash)
-
-                # check if dfs_recursive is True (then we have a solution)
-                if self.dfs_recursive(next_state):
-
-                    # add the current state to the beginning of the solution path
-                    self.solution_path.insert(0, current_state)
-                
-                    return True
-
-        return False
 
     def generate_next_states(self, current_state):
         """
