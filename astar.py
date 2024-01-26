@@ -9,6 +9,7 @@ class RushHourAStar:
     def __init__(self, initial_state):
         self.initial_state = initial_state
 
+        
     def a_star(self):
         print("Starting A*...")
         print("Initial Board:")
@@ -21,7 +22,7 @@ class RushHourAStar:
         priority_queue = PriorityQueue()
         
         # initial state with heuristic added to queue
-        priority_queue.put((self.heuristic(self.initial_state), self.initial_state))
+        priority_queue.put((self.heuristics(self.initial_state), self.initial_state))
         visited.add(self.initial_state.get_state_hashable())
         
         # Dictionary to store the predecessor of each state
@@ -51,21 +52,22 @@ class RushHourAStar:
                 # Get g scores
                 tentative_g_score = g_scores[current_state.get_state_hashable()] + 1
                 
-                print(f"State: {state_hash}, G Score: {tentative_g_score}, Heuristic: {self.heuristic(next_state)}")
+                print(f"State: {state_hash}, G Score: {tentative_g_score}, Heuristic: {self.heuristics(next_state)}")
                 
                 if state_hash not in visited or tentative_g_score < g_scores[state_hash]:
                     visited.add(state_hash)
                     g_scores[state_hash] = tentative_g_score
-                    priority_queue.put((tentative_g_score + self.heuristic(next_state), next_state))
+                    priority_queue.put((tentative_g_score + self.heuristics(next_state), next_state))
                     predecessors[state_hash] = current_state
 
         print("No solution found.")
         return None
 
     
-    def heuristic(self, state):
+    def heuristics(self, state):
         """
-        Heuristic function: Number of cars blocking the red car.
+        Heuristic function: Number of cars blocking the red car, 
+        total distance from blocking vehicles to red car and red car's distance to  exit.
 
         Parameters:
         state (RushHour): The state to evaluate.
@@ -75,17 +77,43 @@ class RushHourAStar:
         """
         red_car = state.vehicles.get('X')
 
-        #blocking_cars = sum(1 for vehicle in state.vehicles.values() if self.blocks_red_car(vehicle, red_car))
+        # Initialize blocking cars, total distance and occupied rows and columns
         blocking_cars = 0
-        
-        for vehicle in state.vehicles.values():
-            if self.blocks_red_car(vehicle, red_car):
-                blocking_cars += 1
-            
-            
-        return blocking_cars
+        total_distance = 0 
+        occupied_rows = set()
+        occupied_columns = set()
 
-    
+        
+        
+        #for vehicle in state.vehicles.values():
+            #if self.blocks_red_car(vehicle, red_car):
+                
+                # Count blocking cars
+                #blocking_cars += 1
+                
+                # Calculate distance from vehicle to red car using Manhattan distance
+                #distance = abs(vehicle.row - red_car.row) + abs(vehicle.col - red_car.col)
+                #total_distance += distance
+                
+                # Count occupied rows and columns
+                #occupied_rows.add(vehicle.row)
+                #occupied_columns.add(vehicle.col)
+        
+        # Add number of occupied rows and columns to total distance
+        #total_distance += len(occupied_rows) + len(occupied_columns)
+        
+        # Calculate the red car's distance to exit
+        distance_to_exit = state.board_size - (red_car.col + red_car.length)
+        
+        # Check for deadlock patterns
+        deadlock_penalty = self.check_deadlock_patterns(state)
+        
+        #print(blocking_cars, distance_to_exit, total_distance, deadlock_penalty)
+        #return (blocking_cars + distance_to_exit + total_distance + deadlock_penalty)
+        
+        print(distance_to_exit, deadlock_penalty)
+        return (distance_to_exit + deadlock_penalty)
+
     
     def blocks_red_car(self, vehicle, red_car):
         """
@@ -105,6 +133,29 @@ class RushHourAStar:
         return False
     
     
+    def check_deadlock_patterns(self, state):
+        """
+        Check for deadlock patterns on the game board.
+
+        Parameters:
+        state (RushHour): The state to evaluate.
+
+        Returns:
+        int: Deadlock penalty (negative value if a deadlock pattern is detected).
+        """
+        deadlock_penalty = 0
+
+        # Check for completely blocked rows and columns
+        for row in range(state.board_size):
+            if all(cell != '.' for cell in state.board[row]):
+                deadlock_penalty -= 1  # Penalize for completely blocked rows
+
+        for col in range(state.board_size):
+            if all(row[col] != '.' for row in state.board):
+                deadlock_penalty -= 1  # Penalize for completely blocked columns
+            # Add more deadlock pattern checks if needed
+
+        return deadlock_penalty
     
     
     def check_win(self, state):
