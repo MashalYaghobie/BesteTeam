@@ -55,7 +55,12 @@ class RushHourBFS:
                 current_state.display_board()
 
                 # return the path to the solution
-                return self.backtrack_path(current_state, predecessors)
+                solution_path = self.backtrack_path(current_state, predecessors)
+
+                # process the solution path to get the sequence of moves
+                moves = self.calculate_moves(solution_path)
+
+                return moves
 
             # generate and enqueue all possible next states from the current state
             for next_state in self.generate_next_states(current_state):
@@ -63,15 +68,30 @@ class RushHourBFS:
                 if state_hash not in visited:
                     visited.add(state_hash)
                     queue.put(next_state)
-
                     # Record the predecessor of the next_state
                     predecessors[state_hash] = current_state
 
-
-
-        # debugging
         print("No solution found.")
         return None
+
+    def calculate_moves(self, solution_path):
+        """
+        Calculate the sequence of moves from the solution path.
+
+        Parameters:
+        solution_path (list): List of states representing the solution path.
+
+        Returns:
+        list: List of moves that lead to the solution.
+        """
+        moves = []
+        for i in range(1, len(solution_path)):
+            previous_state = solution_path[i - 1]
+            current_state = solution_path[i]
+            move = state_to_move(previous_state, current_state)
+            if move:
+                moves.append(move)
+        return moves
 
     def generate_next_states(self, current_state):
         """
@@ -169,30 +189,29 @@ class RushHourBFS:
 
         return False
 
-def read_all_vehicles_bfs(file_path):
+def state_to_move(previous_state, current_state):
     """
-    In this method we read the input-file and create the variables
-    for the vehicles such as name, orientation, length, starting column
-    and starting row. Furthermore we add the vehicle instance to the dictionary.
+    Convert a state into a move by comparing it with its predecessor.
+
+    Parameters:
+    previous_state (RushHour): The previous state of the game.
+    current_state (RushHour): The current state of the game.
+
+    Returns:
+    tuple: A tuple containing the vehicle name and the distance moved.
     """
-    rush_hour_file = pd.read_csv(file_path)
-    vehicles = {}
+    for vehicle_name, current_vehicle in current_state.vehicles.items():
+        previous_vehicle = previous_state.vehicles[vehicle_name]
+        if current_vehicle.row != previous_vehicle.row:
+            # Vertical movement
+            distance = current_vehicle.row - previous_vehicle.row
+            return (vehicle_name, distance)
+        elif current_vehicle.col != previous_vehicle.col:
+            # Horizontal movement
+            distance = current_vehicle.col - previous_vehicle.col
+            return (vehicle_name, distance)
 
-    # Loops through the csv file and assigns the values to variables
-    for car in rush_hour_file.values:
-        name = car[0]
-        orientation = car[1]
-
-        # We substract 1 because of indexing
-        start_col = car[2] - 1
-        start_row = car[3] - 1
-        length = car[4]
-
-        # Adds the vehicle to dictionary and places it on the board
-        vehicle = (Vehicle(name, length, orientation, start_row, start_col))
-        vehicles[name] = vehicle
-
-    return vehicles
+    return None  # No move detected
 
 def clone_rush_hour_state(rush_hour_state):
     """
@@ -224,6 +243,9 @@ if __name__ == "__main__":
     solver = RushHourBFS(rush_hour_game)
     solution_path = solver.bfs()
     if solution_path:
-        print(f"Solution found in {len(solution_path) - 1} moves!")
+        print("Solution sequence of moves:")
+        for move in solution_path:
+            print(move)
+        print(f"Solution found in {len(solution_path)} moves!")
     else:
         print("No solution found.")
