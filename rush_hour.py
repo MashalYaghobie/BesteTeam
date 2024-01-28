@@ -2,6 +2,7 @@ import pandas as pd
 import os
 import copy
 import re
+import numpy as np
 
 
 class Vehicle:
@@ -103,7 +104,9 @@ class RushHour:
                 j += dj
 
         return grid
+        
 
+    
     def get_state_hashable(self):
         """
         Return a shorter string without line breaks that can be
@@ -122,6 +125,7 @@ class RushHour:
         #print(f"Hashable state: {s}")
 
         return s
+
 
     def clone(self):
         """

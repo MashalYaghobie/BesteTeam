@@ -3,12 +3,15 @@ import copy
 from rush_hour import RushHour, Vehicle
 from bfs2 import RushHourBFS
 import pandas as pd
+import time
+
 
 
 class RushHourAStar:
     def __init__(self, initial_state):
         self.initial_state = initial_state
-
+        self.num_of_states = 0
+        
         
     def a_star(self):
         print("Starting A*...")
@@ -17,6 +20,9 @@ class RushHourAStar:
         
         # save visited states
         visited = set()
+        
+        
+        start_time = time.time()
         
         # queue to manage AStar frontier
         priority_queue = PriorityQueue()
@@ -37,6 +43,17 @@ class RushHourAStar:
             # dequeue the next state
             current_state = priority_queue.get()[1]
             
+            self.num_of_states += 1  
+            
+            time_limit_seconds = 30
+            
+            # Check if the elapsed time exceeds the time limit
+            elapsed_time = time.time() - start_time
+            if elapsed_time > time_limit_seconds:
+                print(f"Time limit exceeded ({time_limit_seconds} seconds).")
+                return None
+            
+            
             # check if current state is the goal state
             if self.check_win(current_state):
                 print("Winning state found!")
@@ -52,7 +69,7 @@ class RushHourAStar:
                 # Get g scores
                 tentative_g_score = g_scores[current_state.get_state_hashable()] + 1
                 
-                print(f"State: {state_hash}, G Score: {tentative_g_score}, Heuristic: {self.heuristics(next_state)}")
+                print(f"G Score: {tentative_g_score}, Heuristic: {self.heuristics(next_state)}")
                 
                 if state_hash not in visited or tentative_g_score < g_scores[state_hash]:
                     visited.add(state_hash)
@@ -82,9 +99,8 @@ class RushHourAStar:
         total_distance = 0 
         occupied_rows = set()
         occupied_columns = set()
-
-        
-        
+    
+  
         #for vehicle in state.vehicles.values():
             #if self.blocks_red_car(vehicle, red_car):
                 
@@ -111,11 +127,16 @@ class RushHourAStar:
         #print(blocking_cars, distance_to_exit, total_distance, deadlock_penalty)
         #return (blocking_cars + distance_to_exit + total_distance + deadlock_penalty)
         
-        print(distance_to_exit, deadlock_penalty)
-        return (distance_to_exit + deadlock_penalty)
+        blocking_cars_in_row = sum(
+        1 for vehicle in state.vehicles.values() if vehicle.row == red_car.row and vehicle.col > red_car.col + vehicle.length)
+        
+        dynamic_component = self.num_of_states * 0.0001 # This factor can be changed
+        
+        print(distance_to_exit, deadlock_penalty, blocking_cars_in_row, dynamic_component)
+        return (distance_to_exit + deadlock_penalty + blocking_cars_in_row + dynamic_component)
 
     
-    def blocks_red_car(self, vehicle, red_car):
+    #def blocks_red_car(self, vehicle, red_car):
         """
         Check if the given vehicle blocks the red car.
 
@@ -126,11 +147,11 @@ class RushHourAStar:
         Returns:
         bool: True if the vehicle blocks the red car, False otherwise.
         """
-        if vehicle.orientation == 'H' and vehicle.row == red_car.row:
-            return red_car.col < vehicle.col < red_car.col + red_car.length
-        elif vehicle.orientation == 'V' and vehicle.col == red_car.col:
-            return red_car.row < vehicle.row < red_car.row + red_car.length
-        return False
+        #if vehicle.orientation == 'H' and vehicle.row == red_car.row:
+        #    return red_car.col < vehicle.col < red_car.col + red_car.length
+        #elif vehicle.orientation == 'V' and vehicle.col == red_car.col:
+        #    return red_car.row < vehicle.row < red_car.row + red_car.length
+        #return False
     
     
     def check_deadlock_patterns(self, state):
@@ -157,6 +178,7 @@ class RushHourAStar:
 
         return deadlock_penalty
     
+
     
     def check_win(self, state):
         """
