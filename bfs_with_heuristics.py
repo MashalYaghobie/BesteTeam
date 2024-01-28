@@ -39,21 +39,29 @@ class RushHourBFS:
         visited = set()
         # priority queue for heuristics
         queue = PriorityQueue()
+        
+        initial_g = 0  # cost from initial state to current state
+        
         initial_heuristic = self.combined_heuristics(self.initial_state)
+        
+        initial_f = initial_g + initial_heuristic
+        
         # add the initial state to the queue
-        queue.put((initial_heuristic, self.initial_state))
-
+        #queue.put((initial_heuristic, self.initial_state))
+        queue.put((initial_f, self.initial_state, initial_g))
+        
+        
         visited.add(self.initial_state.get_state_hashable())
 
         # Dictionary to store the predecessor of each state
-        predecessors = {self.initial_state.get_state_hashable(): None}
+        predecessors = {self.initial_state.get_state_hashable(): (None, 0)}
 
         # debugging
         print("Starting BFS...")
 
         while not queue.empty():
             # dequeue the next state (with the lowest heuristic value)
-            _, current_state = queue.get()
+            _, current_state, g_value = queue.get()
 
             # debugging
             #print(f"Current state: {current_state}")
@@ -78,13 +86,18 @@ class RushHourBFS:
                 state_hash = next_state.get_state_hashable()
                 if state_hash not in visited:
                     visited.add(state_hash)
-
+                    
+                    next_g = g_value + 1
+                    
                     # update queue with heuristic value of each state
                     heuristic_value = self.combined_heuristics(next_state)
-                    queue.put((heuristic_value, next_state))
+                    
+                    next_f = next_g + heuristic_value
+                    
+                    queue.put((next_f, next_state, next_g))
 
                     # Record the predecessor of the next_state
-                    predecessors[state_hash] = current_state
+                    predecessors[state_hash] = (current_state, next_g)
 
         print("No solution found.")
         return None
@@ -179,7 +192,7 @@ class RushHourBFS:
         current_state = goal_state
         while current_state:
             path.append(current_state)
-            current_state = predecessors.get(current_state.get_state_hashable())
+            current_state, _ = predecessors.get(current_state.get_state_hashable(), (None, None))
         # reverse the path to start from the initial state
         return path[::-1]
 
