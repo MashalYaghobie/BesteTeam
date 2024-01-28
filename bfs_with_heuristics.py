@@ -362,7 +362,7 @@ if __name__ == "__main__":
     rush_hour_game = RushHour()
     initial_state = rush_hour_game.get_state_hashable()
     #print(f"Initial state for BFS: {initial_state_hash}")
-    solver = RushHourBFS(rush_hour_game, distance_heuristic=True, indirect_blocking_heuristic=True, indirect_blocking_weight=4)
+    solver = RushHourBFS(rush_hour_game, direct_blocking_heuristic=True, indirect_blocking_heuristic=True, indirect_blocking_weight=5)
 
     start_time = time.time()
     solution_path = solver.bfs()
