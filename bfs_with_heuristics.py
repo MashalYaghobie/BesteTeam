@@ -1,13 +1,21 @@
-from queue import Queue
+from queue import PriorityQueue
 import copy
 from rush_hour import RushHour, Vehicle
 import time
 
 
 class RushHourBFS:
-    def __init__(self, initial_state):
+    def __init__(self, initial_state, distance_heuristic=False, direct_blocking_heuristic=False, indirect_blocking_heuristic=False, distance_weight=1, direct_blocking_weight=1, indirect_blocking_weight=1):
 
         self.initial_state = initial_state
+
+        # heuristic settings
+        self.distance_heuristic = distance_heuristic
+        self.direct_blocking_heuristic = direct_blocking_heuristic
+        self.indirect_blocking_heuristic = indirect_blocking_heuristic
+        self.distance_weight = distance_weight
+        self.direct_blocking_weight = direct_blocking_weight
+        self.indirect_blocking_weight = indirect_blocking_weight
 
         # print(f"Initial state: {self.initial_state.get_state_hashable()}")
         #
@@ -17,6 +25,7 @@ class RushHourBFS:
     def bfs(self):
         """
         Perform the breadth-first search algorithm to find a solution to the Rush Hour game.
+        Uses heuristic to prioritise certain states
 
         Returns:
         list of State: The path from the initial state to the goal state, if a solution is found.
@@ -28,10 +37,12 @@ class RushHourBFS:
 
         # save visited states
         visited = set()
-        # queue to manage BFS frontier
-        queue = Queue()
+        # priority queue for heuristics
+        queue = PriorityQueue()
+        initial_heuristic = self.combined_heuristics(self.initial_state)
         # add the initial state to the queue
-        queue.put(self.initial_state)
+        queue.put((initial_heuristic, self.initial_state))
+
         visited.add(self.initial_state.get_state_hashable())
 
         # Dictionary to store the predecessor of each state
@@ -41,8 +52,8 @@ class RushHourBFS:
         print("Starting BFS...")
 
         while not queue.empty():
-            # dequeue the next state
-            current_state = queue.get()
+            # dequeue the next state (with the lowest heuristic value)
+            _, current_state = queue.get()
 
             # debugging
             #print(f"Current state: {current_state}")
@@ -67,7 +78,11 @@ class RushHourBFS:
                 state_hash = next_state.get_state_hashable()
                 if state_hash not in visited:
                     visited.add(state_hash)
-                    queue.put(next_state)
+
+                    # update queue with heuristic value of each state
+                    heuristic_value = self.combined_heuristics(next_state)
+                    queue.put((heuristic_value, next_state))
+
                     # Record the predecessor of the next_state
                     predecessors[state_hash] = current_state
 
@@ -189,6 +204,114 @@ class RushHourBFS:
 
         return False
 
+    def distance_to_exit_heuristic(self, state):
+        """
+        Calculate the distance from the red car to the exit.
+
+        Parameters:
+        state (RushHour): The current state of the game.
+
+        Returns:
+        int: The number of steps the red car needs to reach the exit.
+        """
+        red_car = state.vehicles.get('X')
+        # in case the red car is not found
+        if not red_car:
+            return float('inf')
+
+        distance_to_exit = state.board_size - (red_car.col + red_car.length)
+        return distance_to_exit
+
+    def direct_blocking_cars_heuristic(self, state):
+        """
+        Calculate the number of cars directly blocking the red car's path to the exit.
+
+        Parameters:
+        state (RushHour): The current state of the game.
+
+        Returns:
+        int: The number of cars directly blocking the red car.
+        """
+        red_car = state.vehicles.get('X')
+        # in case the red car is not find or it's orientation is not horizontal
+        if not red_car or red_car.orientation != 'H':
+            return float('inf')
+
+        blocking_cars = 0
+        # find the nose of the red car
+        red_car_end_col = red_car.col + red_car.length
+
+        # iterate trough each column between the red car and the exit
+        for col in range(red_car_end_col, state.board_size):
+            if any(state.board[red_car.row][col] != '.' for row in range(state.board_size)):
+                blocking_cars += 1
+
+        return blocking_cars
+
+    def indirect_blocking_cars_heuristic(self, state):
+        """
+        Calculate the number of cars that are indirectly blocking the
+        red car's path to the exit.
+
+        Parameters:
+        state (RushHour): The current state of the game.
+
+        Returns:
+        int: The number of indirectly blocking cars."""
+        red_car = state.vehicles.get('X')
+        if not red_car or red_car.orientation != 'H':
+            return float('inf')
+
+        indirect_blocking_cars = 0
+        red_car_end_col = red_car.col + red_car.length
+
+        # check each column between the red car and the exit
+        for col in range(red_car_end_col, state.board_size):
+            if state.board[red_car.row][col] != '.':
+                blocking_vehicle = state.vehicles[state.board[red_car.row][col]]
+                if blocking_vehicle.orientation == 'V':
+                    if self.is_vehicle_blocked(blocking_vehicle, state):
+                        indirect_blocking_cars += 1
+        return indirect_blocking_cars
+
+    def is_vehicle_blocked(self, vehicle, state):
+        """
+        Check if a vehicle is blocked on both sides.
+
+        Parameters:
+        vehicle (Vehicle): The vehicle to check.
+        state (RushHour): The current state of the game.
+
+        Returns:
+        bool: True if the vehicle is blocked on both sides, False otherwise.
+        """
+        if vehicle.orientation == 'H':
+            return not state.is_move_valid(vehicle, vehicle.row, vehicle.col - 1) and \
+                   not state.is_move_valid(vehicle, vehicle.row, vehicle.col + vehicle.length)
+        else:
+            return not state.is_move_valid(vehicle, vehicle.row - 1, vehicle.col) and \
+                   not state.is_move_valid(vehicle, vehicle.row + vehicle.length, vehicle.col)
+
+
+    def combined_heuristics(self, state):
+        """For easy implementation in the bfs method."""
+        heuristic_value = 0
+        if self.distance_heuristic:
+             heuristic_value += self.distance_weight * self.distance_to_exit_heuristic(state)
+        if self.direct_blocking_heuristic:
+            heuristic_value += self.direct_blocking_weight * self.direct_blocking_cars_heuristic(state)
+        if self.indirect_blocking_heuristic:
+            heuristic_value += self.indirect_blocking_weight * self.indirect_blocking_cars_heuristic(state)
+        return heuristic_value
+
+
+
+
+
+
+
+
+
 def state_to_move(previous_state, current_state):
     """
     Convert a state into a move by comparing it with its predecessor.
@@ -237,17 +360,13 @@ def clone_rush_hour_state(rush_hour_state):
 if __name__ == "__main__":
 
     rush_hour_game = RushHour()
-    initial_state_hash = rush_hour_game.get_state_hashable()
+    initial_state = rush_hour_game.get_state_hashable()
     #print(f"Initial state for BFS: {initial_state_hash}")
-
-    solver = RushHourBFS(rush_hour_game)
+    solver = RushHourBFS(rush_hour_game, distance_heuristic=True, indirect_blocking_heuristic=True, indirect_blocking_weight=4)
 
     start_time = time.time()
-
     solution_path = solver.bfs()
-
     end_time = time.time()
-
     if solution_path:
         print("Solution sequence of moves:")
         for move in solution_path:
@@ -256,6 +375,5 @@ if __name__ == "__main__":
 
         elapsed_time = end_time - start_time
         print(f"Time taken to solve the board: {elapsed_time:.2f} seconds")
-        
     else:
         print("No solution found.")
