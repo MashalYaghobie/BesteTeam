@@ -9,11 +9,12 @@ class RushHourDFS:
 
     def __init__(self, initial_state):
         """
-        In this method we will define the starting state 
+        In this method we will define the starting state
         """
         self.initial_state = initial_state
         self.visited = set()
         self.solution_path = []
+        self.states_visited = 0
 
     def depth_first_search(self):
         """
@@ -39,10 +40,11 @@ class RushHourDFS:
 
             # append the top of the stack to the solution path
             self.solution_path.append(current_state)
-            
+
             # stop condition - check if we have won
             if self.check_win(current_state):
 
+                print(f"Number of states visited: {self.states_visited}")
                 # get out of the loop if we have found a solution
                 break
 
@@ -50,12 +52,14 @@ class RushHourDFS:
             for next_state in self.generate_next_states(current_state):
                 state_hash = next_state.get_state_hashable()
 
-                # check if those states are new states    
+                # check if those states are new states
                 if state_hash not in self.visited:
                     self.visited.add(state_hash)
 
                     # put the state on the stack
                     stack.append(next_state)
+
+                    self.states_visited += 1
 
         # print the number of moves if we found a path
         if self.solution_path:
@@ -119,7 +123,7 @@ class RushHourDFS:
 
     def check_win(self, state):
         """
-        In this method we check if the new state 
+        In this method we check if the new state
         is a solution to solve the game.
         """
 
@@ -158,8 +162,10 @@ if __name__ == "__main__":
     rush_hour_game = RushHour()
     rush_hour_game.start_game()
 
+    start_time = time.time()
     solver = RushHourDFS(rush_hour_game)
     solution_path = solver.depth_first_search()
+    end_time = time.time()
 
     if solution_path:
         print("Initial State:")
@@ -169,5 +175,9 @@ if __name__ == "__main__":
         solution_path[-1].display_board()
 
         print(f"Number of moves to solve the board: {len(solution_path) - 1}")
+
+        elapsed_time = end_time - start_time
+        print(f"Time taken to solve the board: {elapsed_time:.2f} seconds")
+
     else:
         print("No solution found.")

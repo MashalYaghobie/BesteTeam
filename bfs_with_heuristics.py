@@ -2,20 +2,26 @@ from queue import PriorityQueue
 import copy
 from rush_hour import RushHour, Vehicle
 import time
+import cProfile
 
 
 class RushHourBFS:
-    def __init__(self, initial_state, distance_heuristic=False, direct_blocking_heuristic=False, indirect_blocking_heuristic=False, distance_weight=1, direct_blocking_weight=1, indirect_blocking_weight=1):
+    def __init__(self, initial_state, use_distance_heuristic=False, use_direct_blocking_heuristic=False, use_indirect_blocking_heuristic=False, use_car_mobility_heuristic=False, distance_weight=1, direct_blocking_weight=1, indirect_blocking_weight=1, car_mobility_weight=1):
 
         self.initial_state = initial_state
 
         # heuristic settings
-        self.distance_heuristic = distance_heuristic
-        self.direct_blocking_heuristic = direct_blocking_heuristic
-        self.indirect_blocking_heuristic = indirect_blocking_heuristic
+        self.use_distance_heuristic = use_distance_heuristic
+        self.use_direct_blocking_heuristic = use_direct_blocking_heuristic
+        self.use_indirect_blocking_heuristic = use_indirect_blocking_heuristic
+        self.use_car_mobility_heuristic = use_car_mobility_heuristic
         self.distance_weight = distance_weight
         self.direct_blocking_weight = direct_blocking_weight
         self.indirect_blocking_weight = indirect_blocking_weight
+        self.car_mobility_weight = car_mobility_weight
+
+        # keep track of visited states
+        self.states_visited = 0
 
         # print(f"Initial state: {self.initial_state.get_state_hashable()}")
         #
@@ -39,18 +45,18 @@ class RushHourBFS:
         visited = set()
         # priority queue for heuristics
         queue = PriorityQueue()
-        
+
         initial_g = 0  # cost from initial state to current state
-        
+
         initial_heuristic = self.combined_heuristics(self.initial_state)
-        
+
         initial_f = initial_g + initial_heuristic
-        
+
         # add the initial state to the queue
         #queue.put((initial_heuristic, self.initial_state))
         queue.put((initial_f, self.initial_state, initial_g))
-        
-        
+
+
         visited.add(self.initial_state.get_state_hashable())
 
         # Dictionary to store the predecessor of each state
@@ -68,6 +74,8 @@ class RushHourBFS:
 
             # check if current state is the goal state
             if self.check_win(current_state):
+                # Print the state hash of the goal state
+                print(f"Goal State Hash: {current_state.get_state_hashable()}")
 
                 # debugging
                 print("Winning state found!")
@@ -79,6 +87,8 @@ class RushHourBFS:
                 # process the solution path to get the sequence of moves
                 moves = self.calculate_moves(solution_path)
 
+                print(f"Number of states visited: {self.states_visited}")
+
                 return moves
 
             # generate and enqueue all possible next states from the current state
@@ -86,18 +96,22 @@ class RushHourBFS:
                 state_hash = next_state.get_state_hashable()
                 if state_hash not in visited:
                     visited.add(state_hash)
-                    
+
+                    # invrement states visited counter
+                    self.states_visited += 1
+
                     next_g = g_value + 1
-                    
+
                     # update queue with heuristic value of each state
                     heuristic_value = self.combined_heuristics(next_state)
-                    
+
                     next_f = next_g + heuristic_value
-                    
+
                     queue.put((next_f, next_state, next_g))
 
                     # Record the predecessor of the next_state
                     predecessors[state_hash] = (current_state, next_g)
+
 
         print("No solution found.")
         return None
@@ -305,16 +319,44 @@ class RushHourBFS:
             return not state.is_move_valid(vehicle, vehicle.row - 1, vehicle.col) and \
                    not state.is_move_valid(vehicle, vehicle.row + vehicle.length, vehicle.col)
 
+    def car_mobility_heuristic(self, state):
+        """
+        Calculate the mobility of cars in the current state.
+
+        Parameters:
+        state (RushHour): The current state of the game.
+
+        Returns:
+        int: A heuristic score based on how many cars can move.
+        """
+        movable_cars = 0
+        for vehicle in state.vehicles.values():
+            # check if the car can move forward/backward
+            if vehicle.orientation == 'H':
+                can_move_forward = state.is_move_valid(vehicle, vehicle.row, vehicle.col + 1)
+                can_move_backward = state.is_move_valid(vehicle, vehicle.row, vehicle.col - 1)
+            else:
+                can_move_forward = state.is_move_valid(vehicle, vehicle.row + 1, vehicle.col)
+                can_move_backward = state.is_move_valid(vehicle, vehicle.row - 1, vehicle.col)
+
+            if can_move_forward or can_move_backward:
+                movable_cars += 1
+
+        # the lower the number of movable cars, the higher the heuristic value
+        return len(state.vehicles) - movable_cars
+
 
     def combined_heuristics(self, state):
         """For easy implementation in the bfs method."""
         heuristic_value = 0
-        if self.distance_heuristic:
+        if self.use_distance_heuristic:
              heuristic_value += self.distance_weight * self.distance_to_exit_heuristic(state)
-        if self.direct_blocking_heuristic:
+        if self.use_direct_blocking_heuristic:
             heuristic_value += self.direct_blocking_weight * self.direct_blocking_cars_heuristic(state)
-        if self.indirect_blocking_heuristic:
+        if self.use_indirect_blocking_heuristic:
             heuristic_value += self.indirect_blocking_weight * self.indirect_blocking_cars_heuristic(state)
+        if self.use_car_mobility_heuristic:
+            heuristic_value += self.car_mobility_weight * self.car_mobility_heuristic(state)
         return heuristic_value
 
 
@@ -375,10 +417,10 @@ if __name__ == "__main__":
     rush_hour_game = RushHour()
     initial_state = rush_hour_game.get_state_hashable()
     #print(f"Initial state for BFS: {initial_state_hash}")
-    solver = RushHourBFS(rush_hour_game, direct_blocking_heuristic=True, indirect_blocking_heuristic=True, indirect_blocking_weight=5)
-
+    solver = RushHourBFS(rush_hour_game, use_distance_heuristic=False, use_direct_blocking_heuristic=True, use_indirect_blocking_heuristic=True, use_car_mobility_heuristic=True, distance_weight=1, direct_blocking_weight=1, indirect_blocking_weight=3, car_mobility_weight=2)
     start_time = time.time()
     solution_path = solver.bfs()
+    #cProfile.run('solver.bfs()')
     end_time = time.time()
     if solution_path:
         print("Solution sequence of moves:")
