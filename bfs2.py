@@ -9,6 +9,8 @@ class RushHourBFS:
 
         self.initial_state = initial_state
 
+        self.states_visited = 0
+
         # print(f"Initial state: {self.initial_state.get_state_hashable()}")
         #
         # print("Initial Board:")
@@ -60,6 +62,8 @@ class RushHourBFS:
                 # process the solution path to get the sequence of moves
                 moves = self.calculate_moves(solution_path)
 
+                print(f"Number of states visited: {self.states_visited}")
+
                 return moves
 
             # generate and enqueue all possible next states from the current state
@@ -70,6 +74,8 @@ class RushHourBFS:
                     queue.put(next_state)
                     # Record the predecessor of the next_state
                     predecessors[state_hash] = current_state
+
+                    self.states_visited += 1
 
         print("No solution found.")
         return None
@@ -256,6 +262,6 @@ if __name__ == "__main__":
 
         elapsed_time = end_time - start_time
         print(f"Time taken to solve the board: {elapsed_time:.2f} seconds")
-        
+
     else:
         print("No solution found.")
