@@ -6,7 +6,17 @@ In deze case is het de opdracht om verschillende borden van het Rush Hour spel o
 
 ### Vereisten
 
-We hebben de gehele case uitgewerkt in Python. In requirements.txt staan verdere opmerkingen omtrent welke packages er nodig zijn om alle code succesvol te kunnen runnen. 
+We hebben de gehele case uitgewerkt in Python (versie op moment van schrijven is 3.9.18). In requirements.txt staan verdere opmerkingen omtrent welke packages er nodig zijn om alle code succesvol te kunnen runnen. Deze zijn gemakkelijk te installeren via pip dmv. de volgende instructie:
+
+```
+pip install -r requirements.txt
+```
+
+Of via conda:
+
+```
+conda install --file requirements.txt
+```
 
 ### Gebruik
 
@@ -20,7 +30,8 @@ De hierop volgende lijst beschrijft de belangrijkste mappen en files in het proj
   - **/code/algorithms**: bevat de code voor algoritmes
   - **/code/classes**: bevat de drie benodigde classes voor deze case
   - **/code/visualisation**: bevat de code voor de visualisatie
-- **/data**: bevat de verschillende databestanden die nodig zijn om de graaf te vullen en te visualiseren
+- **/gameboards**: bevat de verschillende aangeleverde gameboards voor deze case
+- **/plots**: bevat plots die we gegenereerd hebben gedurende deze case
 
 ## Auteurs
   - Mashal Yaghobie

@@ -44,19 +44,12 @@ class RushHourAStar:
             current_state = priority_queue.get()[1]
             
             self.num_of_states += 1  
-            
-            time_limit_seconds = 30
-            
-            # Check if the elapsed time exceeds the time limit
-            elapsed_time = time.time() - start_time
-            if elapsed_time > time_limit_seconds:
-                print(f"Time limit exceeded ({time_limit_seconds} seconds).")
-                return None
-            
-            
+
             # check if current state is the goal state
             if self.check_win(current_state):
                 print("Winning state found!")
+                print(time.time() - start_time)
+                print(self.num_of_states)
                 current_state.display_board()
                 
                 # return the path to the solution
@@ -69,7 +62,7 @@ class RushHourAStar:
                 # Get g scores
                 tentative_g_score = g_scores[current_state.get_state_hashable()] + 1
                 
-                print(f"G Score: {tentative_g_score}, Heuristic: {self.heuristics(next_state)}")
+                #print(f"G Score: {tentative_g_score}, Heuristic: {self.heuristics(next_state)}")
                 
                 if state_hash not in visited or tentative_g_score < g_scores[state_hash]:
                     visited.add(state_hash)
@@ -123,19 +116,62 @@ class RushHourAStar:
         
         # Check for deadlock patterns
         deadlock_penalty = self.check_deadlock_patterns(state)
-        
-        #print(blocking_cars, distance_to_exit, total_distance, deadlock_penalty)
-        #return (blocking_cars + distance_to_exit + total_distance + deadlock_penalty)
-        
+
         blocking_cars_in_row = sum(
         1 for vehicle in state.vehicles.values() if vehicle.row == red_car.row and vehicle.col > red_car.col + vehicle.length)
         
-        dynamic_component = self.num_of_states * 0.0001 # This factor can be changed
+        dynamic_component = self.num_of_states * 0.001 # This factor can be changed
         
-        print(distance_to_exit, deadlock_penalty, blocking_cars_in_row, dynamic_component)
-        return (distance_to_exit + deadlock_penalty + blocking_cars_in_row + dynamic_component)
-
+        indirect_blocking_cars = self.indirect_blocking_cars_heuristic(state)
+        
+        #print(distance_to_exit, deadlock_penalty, blocking_cars_in_row, dynamic_component, indirect_blocking_cars)
+        return (distance_to_exit + deadlock_penalty + blocking_cars_in_row * 100 + dynamic_component + indirect_blocking_cars)
     
+    
+    def indirect_blocking_cars_heuristic(self, state):
+        """
+        Calculate the number of cars that are indirectly blocking the
+        red car's path to the exit.
+
+        Parameters:
+        state (RushHour): The current state of the game.
+
+        Returns:
+        int: The number of indirectly blocking cars."""
+        red_car = state.vehicles.get('X')
+        if not red_car or red_car.orientation != 'H':
+            return float('inf')
+
+        indirect_blocking_cars = 0
+        red_car_end_col = red_car.col + red_car.length
+
+        # check each column between the red car and the exit
+        for col in range(red_car_end_col, state.board_size):
+            if state.board[red_car.row][col] != '.':
+                blocking_vehicle = state.vehicles[state.board[red_car.row][col]]
+                if blocking_vehicle.orientation == 'V':
+                    if self.is_vehicle_blocked(blocking_vehicle, state):
+                        indirect_blocking_cars += 1
+        return indirect_blocking_cars
+
+    def is_vehicle_blocked(self, vehicle, state):
+        """
+        Check if a vehicle is blocked on both sides.
+        
+        Parameters:
+        vehicle (Vehicle): The vehicle to check.
+        state (RushHour): The current state of the game.
+
+        Returns:
+        bool: True if the vehicle is blocked on both sides, False otherwise.
+        """
+        if vehicle.orientation == 'H':
+            return not state.is_move_valid(vehicle, vehicle.row, vehicle.col - 1) and \
+                   not state.is_move_valid(vehicle, vehicle.row, vehicle.col + vehicle.length)
+        else:
+            return not state.is_move_valid(vehicle, vehicle.row - 1, vehicle.col) and \
+                   not state.is_move_valid(vehicle, vehicle.row + vehicle.length, vehicle.col)
+
     #def blocks_red_car(self, vehicle, red_car):
         """
         Check if the given vehicle blocks the red car.
