@@ -96,6 +96,7 @@ class RushHour:
 
             # Starting position of the vehicle
             i, j = vehicle.row, vehicle.col
+            
 
             # Update grid cells occupied by this vehicle
             for _ in range(vehicle.length):
@@ -116,15 +117,11 @@ class RushHour:
         -------
         string: A string representation of this state
         """
-        s = ""
-        grid = self.get_state_grid()
-        for i in range(self.board_size):
-            for j in range(self.board_size):
-                s += "{}".format(grid[i][j])
-
-        #print(f"Hashable state: {s}")
-
-        return s
+        if not hasattr(self, '_cached_state'):
+            grid = self.get_state_grid()
+            state_list = [str(cell) for row in grid for cell in row]
+            self._cached_state = ''.join(state_list)
+        return self._cached_state
 
 
     def clone(self):

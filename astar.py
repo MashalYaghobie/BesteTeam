@@ -121,12 +121,12 @@ class RushHourAStar:
         blocking_cars_in_row = sum(
         1 for vehicle in state.vehicles.values() if vehicle.row == red_car.row and vehicle.col > red_car.col + vehicle.length)
         
-        dynamic_component = self.num_of_states * 0.001 # This factor can be changed
+        dynamic_component = self.num_of_states * 0.0001 # This factor can be changed
         
         indirect_blocking_cars = self.indirect_blocking_cars_heuristic(state)
         
         #print(distance_to_exit, deadlock_penalty, blocking_cars_in_row * 100, dynamic_component, indirect_blocking_cars)
-        return (distance_to_exit + deadlock_penalty + blocking_cars_in_row * 100 + dynamic_component + indirect_blocking_cars)
+        return (distance_to_exit + deadlock_penalty + blocking_cars_in_row * 100 + indirect_blocking_cars + dynamic_component)
     
     
     def indirect_blocking_cars_heuristic(self, state):
