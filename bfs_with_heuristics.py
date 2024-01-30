@@ -6,7 +6,7 @@ import cProfile
 
 
 class RushHourBFS:
-    def __init__(self, initial_state, use_distance_heuristic=False, use_direct_blocking_heuristic=False, use_indirect_blocking_heuristic=False, use_car_mobility_heuristic=False, distance_weight=1, direct_blocking_weight=1, indirect_blocking_weight=1, car_mobility_weight=1):
+    def __init__(self, initial_state, use_distance_heuristic=False, use_direct_blocking_heuristic=False, use_indirect_blocking_heuristic=False, use_car_mobility_heuristic=False, use_deadlock_penalty=False, distance_weight=1, direct_blocking_weight=1, indirect_blocking_weight=1, car_mobility_weight=1):
 
         self.initial_state = initial_state
 
@@ -15,6 +15,7 @@ class RushHourBFS:
         self.use_direct_blocking_heuristic = use_direct_blocking_heuristic
         self.use_indirect_blocking_heuristic = use_indirect_blocking_heuristic
         self.use_car_mobility_heuristic = use_car_mobility_heuristic
+        self.use_deadlock_penalty = use_deadlock_penalty
         self.distance_weight = distance_weight
         self.direct_blocking_weight = direct_blocking_weight
         self.indirect_blocking_weight = indirect_blocking_weight
@@ -22,6 +23,9 @@ class RushHourBFS:
 
         # keep track of visited states
         self.states_visited = 0
+
+        # initialise transposition table
+        self.transposition_table = {}
 
         # print(f"Initial state: {self.initial_state.get_state_hashable()}")
         #
@@ -95,7 +99,7 @@ class RushHourBFS:
                 state_hash = next_state.get_state_hashable()
                 if state_hash not in visited:
                     visited.add(state_hash)
-                    
+
                     # increment states visited counter
                     self.states_visited += 1
 
@@ -344,9 +348,37 @@ class RushHourBFS:
         # the lower the number of movable cars, the higher the heuristic value
         return len(state.vehicles) - movable_cars
 
+    def check_deadlock_patterns(self, state):
+        """
+        Check for deadlock patterns on the game board.
+
+        Parameters:
+        state (RushHour): The state to evaluate.
+
+        Returns:
+        int: Deadlock penalty (negative value if a deadlock pattern is detected).
+        """
+        deadlock_penalty = 0
+
+        # Check for completely blocked rows and columns
+        for row in range(state.board_size):
+            if all(cell != '.' for cell in state.board[row]):
+                deadlock_penalty -= 1  # Penalize for completely blocked rows
+
+        for col in range(state.board_size):
+            if all(row[col] != '.' for row in state.board):
+                deadlock_penalty -= 1  # Penalize for completely blocked columns
+            # Add more deadlock pattern checks if needed
+
+        return deadlock_penalty
 
     def combined_heuristics(self, state):
         """For easy implementation in the bfs method."""
+        state_hash = state.get_state_hashable()
+        # check if the heuristic value is already computed
+        if state_hash in self.transposition_table:
+            return self.transposition_table[state_hash]
+
         heuristic_value = 0
         if self.use_distance_heuristic:
              heuristic_value += self.distance_weight * self.distance_to_exit_heuristic(state)
@@ -356,6 +388,12 @@ class RushHourBFS:
             heuristic_value += self.indirect_blocking_weight * self.indirect_blocking_cars_heuristic(state)
         if self.use_car_mobility_heuristic:
             heuristic_value += self.car_mobility_weight * self.car_mobility_heuristic(state)
+
+        deadlock_penalty = self.check_deadlock_patterns(state)
+        heuristic_value += deadlock_penalty # deadlock penalty is zero or negative
+
+        self.transposition_table[state_hash] = heuristic_value
+
         return heuristic_value
 
 
@@ -416,7 +454,7 @@ if __name__ == "__main__":
     rush_hour_game = RushHour()
     initial_state = rush_hour_game.get_state_hashable()
     #print(f"Initial state for BFS: {initial_state_hash}")
-    solver = RushHourBFS(rush_hour_game, use_distance_heuristic=False, use_direct_blocking_heuristic=True, use_indirect_blocking_heuristic=True, use_car_mobility_heuristic=True, distance_weight=1, direct_blocking_weight=1, indirect_blocking_weight=3, car_mobility_weight=2)
+    solver = RushHourBFS(rush_hour_game, use_distance_heuristic=True, use_direct_blocking_heuristic=True, use_indirect_blocking_heuristic=True, use_car_mobility_heuristic=True, use_deadlock_penalty=True, distance_weight=6, direct_blocking_weight=3, indirect_blocking_weight=2, car_mobility_weight=4)
     start_time = time.time()
     solution_path = solver.bfs()
     #cProfile.run('solver.bfs()')
