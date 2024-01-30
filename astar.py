@@ -43,7 +43,7 @@ class RushHourAStar:
             # dequeue the next state
             current_state = priority_queue.get()[1]
             
-            self.num_of_states += 1  
+            #self.num_of_states += 1  
 
             # check if current state is the goal state
             if self.check_win(current_state):
@@ -69,6 +69,7 @@ class RushHourAStar:
                     g_scores[state_hash] = tentative_g_score
                     priority_queue.put((tentative_g_score + self.heuristics(next_state), next_state))
                     predecessors[state_hash] = current_state
+                    self.num_of_states += 1 
 
         print("No solution found.")
         return None
@@ -124,7 +125,7 @@ class RushHourAStar:
         
         indirect_blocking_cars = self.indirect_blocking_cars_heuristic(state)
         
-        #print(distance_to_exit, deadlock_penalty, blocking_cars_in_row, dynamic_component, indirect_blocking_cars)
+        #print(distance_to_exit, deadlock_penalty, blocking_cars_in_row * 100, dynamic_component, indirect_blocking_cars)
         return (distance_to_exit + deadlock_penalty + blocking_cars_in_row * 100 + dynamic_component + indirect_blocking_cars)
     
     
