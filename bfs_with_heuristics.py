@@ -17,6 +17,8 @@ class RushHourBFS:
         self.direct_blocking_weight = direct_blocking_weight
         self.indirect_blocking_weight = indirect_blocking_weight
 
+        self.states_visited = 0
+
         # print(f"Initial state: {self.initial_state.get_state_hashable()}")
         #
         # print("Initial Board:")
@@ -79,6 +81,7 @@ class RushHourBFS:
                 # process the solution path to get the sequence of moves
                 moves = self.calculate_moves(solution_path)
 
+                print(f"Number of states visited: {self.states_visited}")
                 return moves
 
             # generate and enqueue all possible next states from the current state
@@ -87,6 +90,9 @@ class RushHourBFS:
                 if state_hash not in visited:
                     visited.add(state_hash)
                     
+                    # increment states visited counter
+                    self.states_visited += 1
+
                     next_g = g_value + 1
                     
                     # update queue with heuristic value of each state
