@@ -2,6 +2,16 @@
 
 In deze case is het de opdracht om verschillende borden van het Rush Hour spel op te lossen. Dit is normaal gesproken een fysiek bord met verschillende indelingen van auto's en vrachtwagens op het bord, welke horizontaal of verticaal staan georienteerd. Voor een mens kan het lastig zijn en veel tijd in beslag nemen om zulke borden op te lossen, zeker wanneer een bord een omvang heeft van 9x9 of zelfs 12x12. Daarom is het doel voor deze case om met verschillende algoritmes te proberen om verschillende indelingen van Rush Hour borden op te lossen in zo min mogelijk zetten. Het oplossen houdt dan ook in om de rode auto naar de uitgang te brengen door een pad voor deze auto vrij te maken.
 
+## Algoritmes
+
+Voor het oplossen van de Rush Hour case hebben we nagedacht over welke algoritmes we hier het best voor konden gebruiken. De eerste afweging werd gemaakt tussen het gebruiken van iteratieve of constructieve algoritmes. Gezien bij het Rush Hour probleem de volgorde ofwel sequentie van de zetten die gedaan wordt erg belangrijk is, hebben we gekozen om constructieve algoritmes gebruiken. We hebben uiteindelijk gekozen om een Breadth-First Search, Depth-First Search en A-star algoritme te implementeren. Onderstaand zullen we per algoritme toelichten hoe we ze hebben toegepast en waarom ze werken voor onze casus.
+
+**Breadth-First Search**
+
+**Depth-First Search**
+
+**A-star**
+
 ## Aan de slag
 
 ### Vereisten
