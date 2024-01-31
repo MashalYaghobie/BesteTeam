@@ -1,8 +1,8 @@
 import turtle
-from rush_hour import RushHour
-from rush_hour import Vehicle
-from baseline import RushHourSolver
-from bfs2 import RushHourBFS
+from code.game.rush_hour import RushHour
+from code.game.rush_hour import Vehicle
+from code.algorithms.random_algorithm import RushHourSolver
+from code.algorithms.bfs import RushHourBFS
 
 # constants for the visuals
 MAX_WINDOW_SIZE = 600  # max size for the window
