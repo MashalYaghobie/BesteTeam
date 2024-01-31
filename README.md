@@ -50,9 +50,8 @@ De file genaamd rush_hour.py bevat alle code voor het spelen van een Rush Hour g
 python rush_hour.py
 ```
 
-Hierna zal gevraagd worden welk bord je wilt spelen en kunnen zetten op de volgende manier ingegeven worden:
-
-**XXX**
+Hierna zal gevraagd worden welk bord je wilt spelen en kunnen zetten op de volgende manier ingegeven worden <naam_voertuig afstand>, bijvoorbeeld A 1.
+Als deze move niet mogelijk is zal de pop-up opnieuw verschijnen. Na elke zet wordt het nieuwe bord gedisplayd.
 
 De algoritmes zijn eenvoudiger te runnen. Het enige wat voor deze files gedaan moet worden is voor bijvoorbeeld het Depth-First Search algoritme:
 ```
