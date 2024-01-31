@@ -32,13 +32,13 @@ class Vehicle:
         self.old_row = None
         self.old_col = None
 
-        
+
     def get_move_description(self, distance):
         direction = 'right' if distance > 0 else 'left' if distance < 0 else 'none'
         return f"Move car {self.name} {abs(distance)} step(s) to the {direction}"
 
-    
-    
+
+
 class RushHour:
     """
     In this class we will define methods to create the rush hour game.
@@ -61,19 +61,7 @@ class RushHour:
             self.start_game()
             self.initial_hashable_state = self.get_state_hashable()
     
-    
-    def __lt__(self, other):
-        # Define how to compare two RushHour instances
-        # Necessary for Astar algorithm
-        return self.get_state_hashable() < other.get_state_hashable()
 
-    
-    def __eq__(self, other):
-        # Define how to compare two RushHour instances
-        # Necessary for Astar algorithm
-        return self.get_state_hashable() == other.get_state_hashable()
-    
-    
     def get_state_grid(self):
         """
         Return an NxN 2D list corresponding to this state.  Each
@@ -92,7 +80,7 @@ class RushHour:
 
             # Starting position of the vehicle
             i, j = vehicle.row, vehicle.col
-            
+
             # Update grid cells occupied by this vehicle
             for _ in range(vehicle.length):
                 grid[i][j] = idx
@@ -100,7 +88,7 @@ class RushHour:
                 j += dj
 
         return grid
-        
+
 
     def get_state_hashable(self):
         """
@@ -140,7 +128,7 @@ class RushHour:
         for name, vehicle in self.vehicles.items():
             cloned_vehicle = Vehicle(vehicle.name, vehicle.length, vehicle.orientation, vehicle.row, vehicle.col)
             cloned_game.vehicles[name] = cloned_vehicle
-        
+
             # Assuming add_vehicle adjusts the board, we call it here
             cloned_game.add_vehicle(cloned_vehicle)
 
@@ -270,7 +258,7 @@ class RushHour:
         """
         # Create a vehicle variable from the dictionary using its id
         vehicle = self.vehicles[vehicle_id]
-        
+
         # Save the old position before making the move
         vehicle.old_row = vehicle.row
         vehicle.old_col = vehicle.col
