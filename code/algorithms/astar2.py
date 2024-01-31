@@ -27,12 +27,8 @@ class RushHourAStar2:
         # initialise transposition table
         self.transposition_table = {}
 
-        # print(f"Initial state: {self.initial_state.get_state_hashable()}")
-        #
-        # print("Initial Board:")
-        # self.initial_state.display_board()
 
-    def bfs(self):
+    def astar(self):
         """
         Perform the breadth-first search algorithm to find a solution to the Rush Hour game.
         Uses heuristic to prioritise certain states
@@ -57,7 +53,6 @@ class RushHourAStar2:
         initial_f = initial_g + initial_heuristic
 
         # add the initial state to the queue
-        #queue.put((initial_heuristic, self.initial_state))
         queue.put((initial_f, self.initial_state, initial_g))
 
 
@@ -72,9 +67,6 @@ class RushHourAStar2:
         while not queue.empty():
             # dequeue the next state (with the lowest heuristic value)
             _, current_state, g_value = queue.get()
-
-            # debugging
-            #print(f"Current state: {current_state}")
 
             # check if current state is the goal state
             if self.check_win(current_state):
@@ -148,7 +140,6 @@ class RushHourAStar2:
         Returns:
         list of State: A list of all possible next states.
         """
-        #print(f"Generating next states for: {current_state.get_state_hashable()}")
 
         # list of states
         next_states = []
@@ -156,30 +147,20 @@ class RushHourAStar2:
 
         for vehicle_name, vehicle in current_state.vehicles.items():
 
-            #print(f"Trying to move vehicle: {vehicle_name}")
-
             # try moving each vehicle one step forward and backward
             for distance in [1, -1]:
 
                 # calculate new position
                 new_row, new_col = self.calculate_new_position(vehicle, distance)
 
-                #print(f"Attempting to move {vehicle_name} to Row: {new_row}, Col: {new_col}")
-
                 if current_state.is_move_valid(vehicle, new_row, new_col):
-                    #print("Move is valid, generating new state")
+
                     # make a copy of the current state and apply the move
                     new_state = clone_rush_hour_state(current_state)
                     new_state.move_vehicle(vehicle_name, distance)
 
                     next_states.append(new_state)
 
-
-                    # debugging
-                    #print(f"Generated new state by moving {vehicle_name} {distance} step(s):")
-                    #new_state.display_board()
-                #else:
-                    #print(f"Move not valid for vehicle {vehicle_name}")
 
         if not next_states:
             print("No new states generated")
@@ -453,10 +434,10 @@ if __name__ == "__main__":
 
     rush_hour_game = RushHour()
     initial_state = rush_hour_game.get_state_hashable()
-    #print(f"Initial state for BFS: {initial_state_hash}")
-    solver = RushHourBFS(rush_hour_game, use_distance_heuristic=True, use_direct_blocking_heuristic=True, use_indirect_blocking_heuristic=True, use_car_mobility_heuristic=True, use_deadlock_penalty=True, distance_weight=6, direct_blocking_weight=3, indirect_blocking_weight=2, car_mobility_weight=4)
+    
+    solver = RushHourAStar2(rush_hour_game, use_distance_heuristic=True, use_direct_blocking_heuristic=True, use_indirect_blocking_heuristic=True, use_car_mobility_heuristic=True, use_deadlock_penalty=True, distance_weight=6, direct_blocking_weight=3, indirect_blocking_weight=2, car_mobility_weight=4)
     start_time = time.time()
-    solution_path = solver.bfs()
+    solution_path = solver.astar()
     #cProfile.run('solver.bfs()')
     end_time = time.time()
     if solution_path:

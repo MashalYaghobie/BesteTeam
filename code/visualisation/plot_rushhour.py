@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
-from rush_hour import RushHour
-from baseline import RushHourSolver
+from code.game.rush_hour import RushHour
+from code.algorithms.random_algorithm import RushHourSolver
 
 def plot_histogram(data, num_bins=None):
     plt.figure(figsize=(10, 6))

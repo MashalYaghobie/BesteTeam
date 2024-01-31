@@ -1,8 +1,10 @@
 import turtle
-from rush_hour import RushHour
-from rush_hour import Vehicle
-from random_algorithm import RushHourSolver
-from bfs2 import RushHourBFS
+from code.game.rush_hour import RushHour
+from code.game.rush_hour import Vehicle
+from code.algorithms.random_algorithm import RushHourSolver
+from code.algorithms.bfs import RushHourBFS
+from code.algorithms.dfs import RushHourDFS
+from code.algorithms.astar import RushHourAStar
 
 # constants for the visuals
 MAX_WINDOW_SIZE = 600  # max size for the window
@@ -234,45 +236,94 @@ def select_board():
     board_index = int(input("Enter board number: ")) - 1
     return BOARD_FILES[board_size][board_index]
 
+def extract_move(previous_state, current_state):
+    """
+    Compare two RushHour game states and identify the move made.
+    Returns a tuple (vehicle_id, distance).
+    """
+    for vehicle_id, vehicle in current_state.vehicles.items():
+        previous_vehicle = previous_state.vehicles[vehicle_id]
+        if vehicle.row != previous_vehicle.row or vehicle.col != previous_vehicle.col:
+            # Calculate distance moved
+            distance = (vehicle.row - previous_vehicle.row) + (vehicle.col - previous_vehicle.col)
+            return (vehicle_id, distance)
+    return None
+
+
 def main():
     game = RushHour()
-    game.start_game()
     visualizer = RushHourVisualizer(game)
     # initial drawing of the board
     visualizer.initial_draw()
 
-    # # visualize random algorithm
-    # solver = RushHourSolver(game, visualizer)
-    # visualizer.solve_with_algorithm(solver)
+    # Display algorithm choices
+    algorithms = {
+        '1': ("Play Manually", None),
+        '2': ("Random Algorithm", RushHourSolver),
+        '3': ("Breadth-First Search (BFS)", RushHourBFS),
+        '4': ("Depth-First Search (DFS)", RushHourDFS),
+        '5': ("A* Algorithm", RushHourAStar),
+    }
 
-    # game loop
-    # while not game.check_win():
-    #     move = input("Enter your move (Name + distance, format = A 1): ")
-    #     vehicle_id, distance = move.split()
-    #     distance = int(distance)
-    #
-    #     if vehicle_id in game.vehicles:
-    #         game.move_vehicle(vehicle_id, distance)
-    #         visualizer.update_board(vehicle_id)
-    #     else:
-    #         print("Invalid vehicle name. Please try again")
-    #
-    # print("Congratulations! You've won!")
-    # visualizer.window.mainloop()
+    print("Select an option for solving the Rush Hour puzzle:")
+    for key, (name, _) in algorithms.items():
+        print(f"{key}: {name}")
 
-    # visualize BFS
-    solver = RushHourBFS(game)
-    solution_path = solver.bfs()
-    if solution_path:
-        for vehicle_id, distance in solution_path:
-            game.move_vehicle(vehicle_id, distance)
-            visualizer.update_board(vehicle_id)
-            print(f"Moved {vehicle_id} by {distance} steps")
-    else:
-        print("No solution found.")
+    # User selection
+    choice = input("Enter the number of your choice: ")
+    while choice not in algorithms:
+        print("Invalid choice. Please select a valid option.")
+        choice = input("Enter the number of your choice: ")
 
-    if game.check_win():
+    # Execute selected option
+    if choice == '1':
+        # Play the game manually
+        while not game.check_win():
+            move = input("Enter your move (Vehicle ID + distance, format = A 1): ")
+            vehicle_id, distance = move.split()
+            distance = int(distance)
+
+            if vehicle_id in game.vehicles:
+                game.move_vehicle(vehicle_id, distance)
+                visualizer.update_board(vehicle_id)
+            else:
+                print("Invalid vehicle name. Please try again")
+
         print("Congratulations! You've won!")
+    else:
+        _, AlgorithmClass = algorithms[choice]
+        solver = AlgorithmClass(game)
+        if choice == '3':
+            solution_path = solver.bfs()
+        elif choice == '4':
+            states_path = solver.depth_first_search()
+            # convert states to moves
+            solution_path = []
+            for i in range(1, len(states_path)):
+                move = extract_move(states_path[i - 1], states_path[i])
+                if move:
+                    solution_path.append(move)
+        elif choice == '5':
+            states_path = solver.a_star()
+            solution_path = []
+            for i in range(1, len(states_path)):
+                move = extract_move(states_path[i - 1], states_path[i])
+                if move:
+                    solution_path.append(move)
+        else:
+            solution_path = None
+        # make the moves on the board
+        if solution_path:
+            for vehicle_id, distance in solution_path:
+                game.move_vehicle(vehicle_id, distance)
+                visualizer.update_board(vehicle_id)
+                print(f"Moved {vehicle_id} by {distance} steps")
+            if game.check_win():
+                print("Congratulations! You've won!")
+        else:
+            print("No solution found.")
+
+
 
 if __name__ == "__main__":
     main()
