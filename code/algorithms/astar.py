@@ -7,11 +7,11 @@ import time
 
 
 class RushHourAStar:
-    """
-    In this method we initialize the variables needed later.
-    """
  
     def __init__(self, initial_state):
+        """
+        In this method we initialize the variables needed later.
+        """
         # Initial state and number of states
         self.initial_state = initial_state
         self.num_of_states = 0
