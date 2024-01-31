@@ -44,7 +44,8 @@ python main.py
 ```
 
 Hierna zal gevraagd worden welk algoritme je wilt gebruiken en kan je vervolgens kiezen welk gameboard je wilt spelen.
-Vervolgens zal het algoritme gaan runnen.
+Vervolgens zal het algoritme gaan runnen. Het zal de beginconfiguratie en oplossing van het bord tonen wanneer er een oplossing mogelijk is.
+Ook zal het aantal nodige zetten geprint worden.
 
 ### Structuur
 
