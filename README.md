@@ -35,21 +35,13 @@ We hebben de gehele case uitgewerkt in Python (versie op moment van schrijven is
 
 ### Gebruik
 
-De file genaamd rush_hour.py bevat alle code voor het spelen van een Rush Hour game. Deze file kan gebruikt worden om zelf stap voor stap een Rush Hour bord op te lossen. De file kan met deze instructie gespeeld worden:
+De file genaamd main.py bevat alle code voor het runnen van een van de algoritmes voor de Rush Hour game. De file kan met deze instructie gespeeld worden:
 ```
-python rush_hour.py
-```
-
-Hierna zal gevraagd worden welk bord je wilt spelen en kunnen zetten op de volgende manier ingegeven worden <naam_voertuig afstand>, bijvoorbeeld A 1.
-Als deze move niet mogelijk is zal de pop-up opnieuw verschijnen. Na elke zet wordt het nieuwe bord gedisplayd.
-
-De algoritmes zijn eenvoudiger te runnen. Het enige wat voor deze files gedaan moet worden is voor bijvoorbeeld het Depth-First Search algoritme:
-```
-python dfs.py
+python main.py
 ```
 
-Hierna zal gevraagd worden welk bord gespeeld moet worden en vervolgens zal het algoritme zijn werk doen.
-
+Hierna zal gevraagd worden welk algoritme je wilt gebruiken en kan je vervolgens kiezen welk gameboard je wilt spelen.
+Vervolgens zal het algoritme gaan runnen.
 
 ### Structuur
 
