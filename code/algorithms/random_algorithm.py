@@ -1,6 +1,6 @@
 import random
 import time
-from rush_hour import RushHour
+from code.game.rush_hour import RushHour
 import matplotlib.pyplot as plt
 
 class RushHourSolver:

@@ -1,7 +1,6 @@
 from queue import PriorityQueue
 import copy
-from ..game.rush_hour import RushHour, Vehicle
-from bfs import RushHourBFS
+from code.game.rush_hour import RushHour, Vehicle
 import pandas as pd
 import time
 

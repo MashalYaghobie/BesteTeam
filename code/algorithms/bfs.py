@@ -1,6 +1,6 @@
 from queue import Queue
 import copy
-from rush_hour import RushHour, Vehicle
+from code.game.rush_hour import RushHour, Vehicle
 import time
 
 

@@ -1,5 +1,5 @@
 import time
-from rush_hour import RushHour, Vehicle
+from code.game.rush_hour import RushHour, Vehicle
 
 class RushHourDFS:
     """
