@@ -1,7 +1,7 @@
 from queue import PriorityQueue
 import copy
-from rush_hour import RushHour, Vehicle
-from bfs2 import RushHourBFS
+from ..game.rush_hour import RushHour, Vehicle
+from bfs import RushHourBFS
 import pandas as pd
 import time
 
@@ -9,18 +9,18 @@ import time
 
 class RushHourAStar:
     """
-    In this method we initialize two variables
+    In this method we initialize the variables needed later.
     """
-    
-
+ 
     def __init__(self, initial_state):
+        # Initial state and number of states
         self.initial_state = initial_state
         self.num_of_states = 0
         
         
     def a_star(self):
         """
-        The astar algorithm is implemented, it returns the time, number of states and the goal state.
+        The AStar algorithm is implemented, it returns the time, number of states and the goal state.
         """
         # Print text and show board
         print("Starting A*...")
@@ -30,13 +30,13 @@ class RushHourAStar:
         # Save visited states
         visited = set()
         
-        # I
+        # Keep track of time
         start_time = time.time()
         
-        # queue to manage AStar frontier
+        # Queue to manage AStar frontier
         priority_queue = PriorityQueue()
         
-        # initial state with heuristic added to queue
+        # Initial state with heuristic added to queue
         priority_queue.put((self.heuristics(self.initial_state), self.initial_state))
         visited.add(self.initial_state.get_state_hashable())
         
@@ -46,32 +46,27 @@ class RushHourAStar:
         # Dictionary to store g scores 
         g_scores = {self.initial_state.get_state_hashable(): 0}
 
-        
         while not priority_queue.empty():
             
-            # dequeue the next state
+            # Dequeue the next state
             current_state = priority_queue.get()[1]
-            
-            #self.num_of_states += 1  
 
-            # check if current state is the goal state
+            # Check if current state is the goal state
             if self.check_win(current_state):
                 print("Winning state found!")
                 print(time.time() - start_time)
                 print(self.num_of_states)
                 current_state.display_board()
                 
-                # return the path to the solution
+                # Return the path to the solution
                 return self.backtrack_path(current_state, predecessors)
             
-            # generate and enqueue all possible next states from the current state
+            # Generate and enqueue all possible next states from the current state
             for next_state in self.generate_next_states(current_state):
                 state_hash = next_state.get_state_hashable()
                 
                 # Get g scores
                 tentative_g_score = g_scores[current_state.get_state_hashable()] + 1
-                
-                #print(f"G Score: {tentative_g_score}, Heuristic: {self.heuristics(next_state)}")
                 
                 if state_hash not in visited or tentative_g_score < g_scores[state_hash]:
                     visited.add(state_hash)
@@ -97,45 +92,24 @@ class RushHourAStar:
         """
         red_car = state.vehicles.get('X')
 
-        # Initialize blocking cars, total distance and occupied rows and columns
-        blocking_cars = 0
-        total_distance = 0 
-        occupied_rows = set()
-        occupied_columns = set()
-    
-  
-        #for vehicle in state.vehicles.values():
-            #if self.blocks_red_car(vehicle, red_car):
-                
-                # Count blocking cars
-                #blocking_cars += 1
-                
-                # Calculate distance from vehicle to red car using Manhattan distance
-                #distance = abs(vehicle.row - red_car.row) + abs(vehicle.col - red_car.col)
-                #total_distance += distance
-                
-                # Count occupied rows and columns
-                #occupied_rows.add(vehicle.row)
-                #occupied_columns.add(vehicle.col)
-        
-        # Add number of occupied rows and columns to total distance
-        #total_distance += len(occupied_rows) + len(occupied_columns)
-        
         # Calculate the red car's distance to exit
         distance_to_exit = state.board_size - (red_car.col + red_car.length)
         
         # Check for deadlock patterns
         deadlock_penalty = self.check_deadlock_patterns(state)
-
+        
+        # Get number of blocking cars in row and initialize weight
         blocking_cars_in_row = sum(
         1 for vehicle in state.vehicles.values() if vehicle.row == red_car.row and vehicle.col > red_car.col + vehicle.length)
+        weight = 100 # This factor can be changed
         
+        # Dynamic component, increases as number of states increaases
         dynamic_component = self.num_of_states * 0.0001 # This factor can be changed
         
+        # Indirect blocking cars
         indirect_blocking_cars = self.indirect_blocking_cars_heuristic(state)
-        
-        #print(distance_to_exit, deadlock_penalty, blocking_cars_in_row * 100, dynamic_component, indirect_blocking_cars)
-        return (distance_to_exit + deadlock_penalty + blocking_cars_in_row * 100 + indirect_blocking_cars + dynamic_component)
+
+        return (distance_to_exit + deadlock_penalty + blocking_cars_in_row * weight + indirect_blocking_cars + dynamic_component)
     
     
     def indirect_blocking_cars_heuristic(self, state):
@@ -155,7 +129,7 @@ class RushHourAStar:
         indirect_blocking_cars = 0
         red_car_end_col = red_car.col + red_car.length
 
-        # check each column between the red car and the exit
+        # Check each column between the red car and the exit
         for col in range(red_car_end_col, state.board_size):
             if state.board[red_car.row][col] != '.':
                 blocking_vehicle = state.vehicles[state.board[red_car.row][col]]
@@ -164,6 +138,7 @@ class RushHourAStar:
                         indirect_blocking_cars += 1
         return indirect_blocking_cars
 
+    
     def is_vehicle_blocked(self, vehicle, state):
         """
         Check if a vehicle is blocked on both sides.
@@ -182,24 +157,7 @@ class RushHourAStar:
             return not state.is_move_valid(vehicle, vehicle.row - 1, vehicle.col) and \
                    not state.is_move_valid(vehicle, vehicle.row + vehicle.length, vehicle.col)
 
-    #def blocks_red_car(self, vehicle, red_car):
-        """
-        Check if the given vehicle blocks the red car.
 
-        Parameters:
-        vehicle (Vehicle): The vehicle to check.
-        red_car (Vehicle): The red car.
-
-        Returns:
-        bool: True if the vehicle blocks the red car, False otherwise.
-        """
-        #if vehicle.orientation == 'H' and vehicle.row == red_car.row:
-        #    return red_car.col < vehicle.col < red_car.col + red_car.length
-        #elif vehicle.orientation == 'V' and vehicle.col == red_car.col:
-        #    return red_car.row < vehicle.row < red_car.row + red_car.length
-        #return False
-    
-    
     def check_deadlock_patterns(self, state):
         """
         Check for deadlock patterns on the game board.
@@ -215,12 +173,11 @@ class RushHourAStar:
         # Check for completely blocked rows and columns
         for row in range(state.board_size):
             if all(cell != '.' for cell in state.board[row]):
-                deadlock_penalty -= 1  # Penalize for completely blocked rows
+                deadlock_penalty -= 1  # Penalize, this factor can be changed
 
         for col in range(state.board_size):
             if all(row[col] != '.' for row in state.board):
-                deadlock_penalty -= 1  # Penalize for completely blocked columns
-            # Add more deadlock pattern checks if needed
+                deadlock_penalty -= 1  # Penalize, this factor can be changed
 
         return deadlock_penalty
     
@@ -258,38 +215,25 @@ class RushHourAStar:
         Returns:
         list of State: A list of all possible next states.
         """
-        #print(f"Generating next states for: {current_state.get_state_hashable()}")
 
-        # list of states
+        # List of states
         next_states = []
 
 
         for vehicle_name, vehicle in current_state.vehicles.items():
 
-            #print(f"Trying to move vehicle: {vehicle_name}")
-
-            # try moving each vehicle one step forward and backward
+            # Try moving each vehicle one step forward and backward
             for distance in [1, -1]:
 
-                # calculate new position
+                # Calculate new position
                 new_row, new_col = self.calculate_new_position(vehicle, distance)
 
-                #print(f"Attempting to move {vehicle_name} to Row: {new_row}, Col: {new_col}")
-
                 if current_state.is_move_valid(vehicle, new_row, new_col):
-                    #print("Move is valid, generating new state")
-                    # make a copy of the current state and apply the move
+                    # Make a copy of the current state and apply the move
                     new_state = clone_rush_hour_state(current_state)
                     new_state.move_vehicle(vehicle_name, distance)
 
                     next_states.append(new_state)
-
-
-                    # debugging
-                    #print(f"Generated new state by moving {vehicle_name} {distance} step(s):")
-                    #new_state.display_board()
-                #else:
-                    #print(f"Move not valid for vehicle {vehicle_name}")
 
         if not next_states:
             print("No new states generated")
@@ -315,13 +259,13 @@ class RushHourAStar:
         Returns:
         list of State: The path from the initial state to the goal state.
         """
-        # store the path
+        # Store the path
         path = []
         current_state = goal_state
         while current_state:
             path.append(current_state)
             current_state = predecessors.get(current_state.get_state_hashable())
-        # reverse the path to start from the initial state
+        # Reverse the path to start from the initial state
         return path[::-1]
     
     
