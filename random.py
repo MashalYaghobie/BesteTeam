@@ -5,11 +5,16 @@ import matplotlib.pyplot as plt
 
 class RushHourSolver:
     """
-    In this class we add some methods to solve our rushhour boards/game randomly.
+    In this class we add some methods to solve our rushhour boards/game
+    by applying random moves.
     """
 
-    # this method initializes the game
     def __init__(self, game, visualizer=None):
+        """
+        In this method we define some starting/intial variables.
+        """
+
+        # creating/initializing the variables
         self.game = game
         self.visualizer = visualizer
 
@@ -72,8 +77,10 @@ class RushHourSolver:
         untill the red vehicle is at the desired exit spot.
         """
         
-        # Count total moves made and keep track of time
+        # count the total moves made
         moves_counter = 0
+
+        # create the starting time
         start_time = time.time()
         
         # we loop through our set maximum iterations
@@ -103,10 +110,10 @@ class RushHourSolver:
             if self.visualizer:
                 self.visualizer.update_board(vehicle_name)
 
-            # Count total moves
+            # increase the total moves done
             moves_counter += 1
 
-            #Print the current/new state of the board
+            # print the current/new state of the board
             print(f"Iteration: {iteration + 1}, Move: {moves_counter}\nVehicle {vehicle_name} by {distance} units")
             self.game.display_board()
 
@@ -115,15 +122,27 @@ class RushHourSolver:
                 print(f"Puzzle solved in {moves_counter} moves! Time needed: {time.time() - start_time}")
                 self.game.display_board()
                 return moves_counter
+
         return None
         print("Failed to solve the puzzle within the maximum number of iterations.")
 
         
     def perform_experiments(self, num_experiments = 10000, max_iterations = 100000):
+        """
+        In this method we will create a way to let the algorithm run num_experiments
+        amount of times. And set a limit at max_iterations amount of moves.
+        """
+
+        # create an empty list to store the results
         results = []
+
+        # loop through our number of experiments/number of games
         for game in range(num_experiments):
+
             # reset game for each experiment
             self.game.reset()
+
+            # save the results
             result = self.solve_randomly(max_iterations)
             if result is not None:
                 results.append(result)
@@ -132,8 +151,11 @@ class RushHourSolver:
 
     
 if __name__ == "__main__":
+    
+    # create a rush hour game
     game = RushHour()
     
+    # start the game
     game.start_game()
     
     solver = RushHourSolver(game)
