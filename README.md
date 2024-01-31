@@ -31,17 +31,7 @@ Het A-star algoritme is het derde en laatste algoritme die we hebben geimplement
 
 ### Vereisten
 
-We hebben de gehele case uitgewerkt in Python (versie op moment van schrijven is 3.9.18). In requirements.txt staan verdere opmerkingen omtrent welke packages er nodig zijn om alle code succesvol te kunnen runnen. Deze zijn gemakkelijk te installeren via pip dmv. de volgende instructie:
-
-```
-pip install -r requirements.txt
-```
-
-Of via conda:
-
-```
-conda install --file requirements.txt
-```
+We hebben de gehele case uitgewerkt in Python (versie op moment van schrijven is 3.9.18). We hebben verder geen bijzondere afhankelijkheden. We hebben voor de visualisatie de turtles library gebruikt, maar deze hoefden we niet te installeren daarom hebben we geen requirements.txt opgesteld.
 
 ### Gebruik
 
