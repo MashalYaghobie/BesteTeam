@@ -1,7 +1,7 @@
 import turtle
 from rush_hour import RushHour
 from rush_hour import Vehicle
-from baseline import RushHourSolver
+from random_algorithm import RushHourSolver
 from bfs2 import RushHourBFS
 
 # constants for the visuals
