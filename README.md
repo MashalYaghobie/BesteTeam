@@ -48,6 +48,9 @@ Vervolgens zal het algoritme gaan runnen. Het zal de beginconfiguratie en oploss
 Ook zal het aantal nodige zetten geprint worden.
 
 ### Visualisatie
+
+De visualisatie van onze casus is gemaakt met de Turtle graphics library van Python. Deze library moet dus geinstalleerd zijn om de visualisatie te kunnen laten runnen.
+
 Voor het runnen van de visualisatie is deze command vereist in de terminal:
 ```
 python -m code.visualisation.visualize_rushhour
