@@ -9,8 +9,11 @@ class RushHourDFS:
 
     def __init__(self, initial_state):
         """
-        In this method we will define the starting state
+        In this method we will define the starting state and initialise
+        some starting variables.
         """
+
+        # create some starting/initial variables
         self.initial_state = initial_state
         self.visited = set()
         self.solution_path = []
@@ -43,8 +46,9 @@ class RushHourDFS:
 
             # stop condition - check if we have won
             if self.check_win(current_state):
-
+                
                 print(f"Number of states visited: {self.states_visited}")
+
                 # get out of the loop if we have found a solution
                 break
 
@@ -59,6 +63,7 @@ class RushHourDFS:
                     # put the state on the stack
                     stack.append(next_state)
 
+                    # increase the states visited counter
                     self.states_visited += 1
 
         # print the number of moves if we found a path
@@ -159,14 +164,24 @@ class RushHourDFS:
         return cloned_game
 
 if __name__ == "__main__":
+
+    # create an instance of the rush hour game
     rush_hour_game = RushHour()
+
+    # start the game
     rush_hour_game.start_game()
 
+    # create the start time
     start_time = time.time()
+
+    # apply our depth first search algorithm
     solver = RushHourDFS(rush_hour_game)
     solution_path = solver.depth_first_search()
+
+    # create the end time
     end_time = time.time()
 
+    # print some data if we have found a solution
     if solution_path:
         print("Initial State:")
         rush_hour_game.display_board()
@@ -176,6 +191,7 @@ if __name__ == "__main__":
 
         print(f"Number of moves to solve the board: {len(solution_path) - 1}")
 
+        # this is the time the algorithm has been running
         elapsed_time = end_time - start_time
         print(f"Time taken to solve the board: {elapsed_time:.2f} seconds")
 
