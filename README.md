@@ -57,6 +57,11 @@ De hierop volgende lijst beschrijft de belangrijkste mappen en files in het proj
 - **/gameboards**: bevat de verschillende aangeleverde gameboards voor deze case
 - **/plots**: bevat plots die we gegenereerd hebben gedurende deze case
 
+### Resultaten
+
+De resultaten hebben we verzameld door met behulp van main.py alle algoritmes te runnen. Vervolgens hebben we deze resultaten opgeslagen en gebruikt om handmatig grafieken en plots te maken.
+De gegevens die hierin zichtbaar zijn zijn echter goed te reproduceren door de algoritmes te runnen. De plots hebben we opgeslagen in de map /plots.
+
 ## Auteurs
   - Mashal Yaghobie
   - Morris van der Hulst
