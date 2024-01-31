@@ -66,15 +66,6 @@ class RushHourDFS:
                     # increase the states visited counter
                     self.states_visited += 1
 
-        # print the number of moves if we found a path
-        if self.solution_path:
-            print(f"Solution found in {len(self.solution_path) - 1} moves!")
-        else:
-            print("No solution found.")
-
-        # print the time it took to solve
-        print(f"Solving time: {time.time() - start_time} seconds")
-
         # return the paht with our solution
         return self.solution_path
 

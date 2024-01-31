@@ -7,11 +7,11 @@ import time
 
 
 class RushHourAStar:
-    """
-    In this method we initialize the variables needed later.
-    """
  
     def __init__(self, initial_state):
+        """
+        In this method we initialize the variables needed later.
+        """
         # Initial state and number of states
         self.initial_state = initial_state
         self.num_of_states = 0
@@ -53,8 +53,8 @@ class RushHourAStar:
             # Check if current state is the goal state
             if self.check_win(current_state):
                 print("Winning state found!")
-                print(time.time() - start_time)
-                print(self.num_of_states)
+                print(f"Time taken to solve the board: {round(time.time() - start_time, 2)} seconds")
+                print(f"Number of states visited: {self.num_of_states}")
                 current_state.display_board()
                 
                 # Return the path to the solution

@@ -21,6 +21,8 @@ def run_algorithm(choice):
     
     
     # ----------------------------------------------------- AStar -------------------------------------------------------
+    # The best possible heuristics combinations I could find are in this algorithm. It solves the 6x6 boards and the first 
+    # 9x9 board in around 20 seconds with the shortest path as well. It keeps on running when trying a different board.
     elif choice == '2':
         rush_hour_game = RushHour()
         solver = RushHourAStar(rush_hour_game)
