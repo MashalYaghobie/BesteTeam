@@ -7,7 +7,7 @@ import time
 class RushHourBFS:
     """
     In this class we will define methods to perform the breadth first search
-    algorithm for our rush hour gameboards. 
+    algorithm for our rush hour gameboards.
     """
 
     def __init__(self, initial_state):
@@ -21,14 +21,10 @@ class RushHourBFS:
         # create a counter for the states visited
         self.states_visited = 0
 
-        # print(f"Initial state: {self.initial_state.get_state_hashable()}")
-        #
-        # print("Initial Board:")
-        # self.initial_state.display_board()
 
     def bfs(self):
         """
-        In this method we perform the breadth-first search algorithm for our 
+        In this method we perform the breadth-first search algorithm for our
         rush hour case. We will try to find the path from the initial state
         to the solution state, which we will call the solution path.
         """
@@ -108,7 +104,7 @@ class RushHourBFS:
     def calculate_moves(self, solution_path):
         """
         In this method we will calculate the order of the moves done
-        to get from our initial state to the solution state. So 
+        to get from our initial state to the solution state. So
         we will find all the moves from our solution path
         """
 
@@ -131,10 +127,9 @@ class RushHourBFS:
 
     def generate_next_states(self, current_state):
         """
-        In this method we will generate all the possible next states from 
+        In this method we will generate all the possible next states from
         the current state we are in.
         """
-        #print(f"Generating next states for: {current_state.get_state_hashable()}")
 
         # create an empty list for the next states
         next_states = []
@@ -142,17 +137,16 @@ class RushHourBFS:
         # loop through all vehicles in the gameboards current state
         for vehicle_name, vehicle in current_state.vehicles.items():
 
-            #print(f"Trying to move vehicle: {vehicle_name}")
 
-            # try to move each unique vehicle one step 
+            # try to move each unique vehicle one step
             for distance in [1, -1]:
 
                 # calculate the new position for the vehicle
                 new_row, new_col = self.calculate_new_position(vehicle, distance)
-                
+
                 # check if this move is possible/valid
                 if current_state.is_move_valid(vehicle, new_row, new_col):
-                    
+
                     # make a copy of the current state
                     new_state = clone_rush_hour_state(current_state)
 
@@ -171,17 +165,17 @@ class RushHourBFS:
 
     def calculate_new_position(self, vehicle, distance):
         """
-        In this method we will calculate the new position for 
+        In this method we will calculate the new position for
         a vehicle based on its orientation.
         """
-        
+
         # if the vehicle is horizontal oriented
         if vehicle.orientation == 'H':
 
             # increase the column position by the move distance
             return vehicle.row, vehicle.col + distance
 
-        # if the vehicle is vertical oriented    
+        # if the vehicle is vertical oriented
         else:
 
             # increase the row position by the move distance
@@ -190,7 +184,7 @@ class RushHourBFS:
 
     def backtrack_path(self, goal_state, predecessors):
         """
-        In this method we will backtrack from the solution state/goal state to 
+        In this method we will backtrack from the solution state/goal state to
         the initial state/starting state to find the solution path.
         """
 
@@ -252,7 +246,7 @@ def state_to_move(previous_state, current_state):
             distance = current_vehicle.row - previous_vehicle.row
             return (vehicle_name, distance)
 
-        # check if the vehicle is not in the same position (horizontal movement)    
+        # check if the vehicle is not in the same position (horizontal movement)
         elif current_vehicle.col != previous_vehicle.col:
 
             # get the distance from the move that has been done
@@ -287,8 +281,6 @@ if __name__ == "__main__":
 
     # get the initial state from the game
     initial_state_hash = rush_hour_game.get_state_hashable()
-
-    #print(f"Initial state for BFS: {initial_state_hash}")
 
     solver = RushHourBFS(rush_hour_game)
 
