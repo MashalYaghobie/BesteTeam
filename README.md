@@ -26,9 +26,9 @@ Het Depth-First Search algoritme (hierna: DFS) is het tweede algoritme die we he
 Het A-star algoritme is het derde en laatste algoritme die we hebben geimplementeerd. Dit algoritme werkt goed voor het Rush Hour probleem, omdat het op een efficiente manier met gebruik van heuristieken het kortste pad zoekt van de beginconfiguratie naar de oplossing. Het is als het ware een extensie van het Breadth-First Search algoritme. Kort samengevat werkt dit algoritme stapsgewijs als volgt:
 1. Het algoritme begint met de beginconfiguratie van het bord.
 2. Het algoritme houdt een 'queue' bij met daarin alle verschillende opstellingen of 'states' van het bord dat het langs zal gaan.
-3. In tegenstelling tot het BFS algoritme, zal AStar niet langs alle states gaan d.m.v. een heuristische functie. De heuristisce functie plus de kostfunctie zijn de totale kosten. De state met de laagste totale kosten wordt gekozen.
+3. In tegenstelling tot het BFS algoritme, zal AStar niet langs alle states gaan door middel van een heuristische functie. De heuristische functie plus de kostfunctie zijn de totale kosten. De state met de laagste totale kosten wordt gekozen.
 4. Voor die state worden er gekeken naar alle mogelijke zetten en vervolgens wordt het toegevoegd aan de closed list. Dit om bij te houden welke state al bezocht is, zodat het niet meerdere keren wordt bezocht.
-5. Dit wordt herhaald voor de volgende states totdat the goal state is gevonden. 
+5. Dit wordt herhaald voor de volgende states totdat de goal state is gevonden. 
    
 ## Aan de slag
 
@@ -44,7 +44,8 @@ python main.py
 ```
 
 Hierna zal gevraagd worden welk algoritme je wilt gebruiken en kan je vervolgens kiezen welk gameboard je wilt spelen.
-Vervolgens zal het algoritme gaan runnen.
+Vervolgens zal het algoritme gaan runnen. Het zal de beginconfiguratie en oplossing van het bord tonen wanneer er een oplossing mogelijk is.
+Ook zal het aantal nodige zetten geprint worden.
 
 ### Structuur
 
@@ -56,6 +57,11 @@ De hierop volgende lijst beschrijft de belangrijkste mappen en files in het proj
   - **/code/visualisation**: bevat de code voor de visualisatie
 - **/gameboards**: bevat de verschillende aangeleverde gameboards voor deze case
 - **/plots**: bevat plots die we gegenereerd hebben gedurende deze case
+
+### Resultaten
+
+De resultaten hebben we verzameld door met behulp van main.py alle algoritmes te runnen. Vervolgens hebben we deze resultaten opgeslagen en gebruikt om handmatig grafieken en plots te maken.
+De gegevens die hierin zichtbaar zijn zijn echter goed te reproduceren door de algoritmes te runnen. De plots hebben we opgeslagen in de map /plots.
 
 ## Auteurs
   - Mashal Yaghobie
