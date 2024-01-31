@@ -23,10 +23,13 @@ Het Depth-First Search algoritme (hierna: DFS) is het tweede algoritme die we he
 5. Als het algoritme een pad heeft gevonden van de beginconfiguratie naar de oplossing dan geeft het algoritme het aantal moves en de eindconfiguratie van het bord.
 
 ### A-star
-Het A-star algoritme is het derde en laatste algoritme die we hebben geimplementeerd. Dit algoritme werkt goed voor het Rush Hour probleem, omdat het op een efficiente manier met gebruik van heuristieken het kortste pad zoekt van de beginconfiguratie naar de oplossing. Kort samengevat werkt dit algoritme stapsgewijs als volgt:
+Het A-star algoritme is het derde en laatste algoritme die we hebben geimplementeerd. Dit algoritme werkt goed voor het Rush Hour probleem, omdat het op een efficiente manier met gebruik van heuristieken het kortste pad zoekt van de beginconfiguratie naar de oplossing. Het is als het ware een extensie van het Breadth-First Search algoritme. Kort samengevat werkt dit algoritme stapsgewijs als volgt:
 1. Het algoritme begint met de beginconfiguratie van het bord.
-2. 
-
+2. Het algoritme houdt een 'queue' bij met daarin alle verschillende opstellingen of 'states' van het bord dat het langs zal gaan.
+3. In tegenstelling tot het BFS algoritme, zal AStar niet langs alle states gaan d.m.v. een heuristische functie. De heuristisce functie plus de kostfunctie zijn de totale kosten. De state met de laagste totale kosten wordt gekozen.
+4. Voor die state worden er gekeken naar alle mogelijke zetten en vervolgens wordt het toegevoegd aan de closed list. Dit om bij te houden welke state al bezocht is, zodat het niet meerdere keren wordt bezocht.
+5. Dit wordt herhaald voor de volgende states totdat the goal state is gevonden. 
+   
 ## Aan de slag
 
 ### Vereisten
