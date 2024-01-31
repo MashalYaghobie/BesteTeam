@@ -5,10 +5,20 @@ import time
 
 
 class RushHourBFS:
-    def __init__(self, initial_state):
+    """
+    In this class we will define methods to perform the breadth first search
+    algorithm for our rush hour gameboards. 
+    """
 
+    def __init__(self, initial_state):
+        """
+        In this method we define some initial starting variables.
+        """
+
+        # we set the initial state
         self.initial_state = initial_state
 
+        # create a counter for the states visited
         self.states_visited = 0
 
         # print(f"Initial state: {self.initial_state.get_state_hashable()}")
@@ -18,31 +28,36 @@ class RushHourBFS:
 
     def bfs(self):
         """
-        Perform the breadth-first search algorithm to find a solution to the Rush Hour game.
-
-        Returns:
-        list of State: The path from the initial state to the goal state, if a solution is found.
+        In this method we perform the breadth-first search algorithm for our 
+        rush hour case. We will try to find the path from the initial state
+        to the solution state, which we will call the solution path.
         """
 
         print("Starting BFS...")
         print("Initial Board:")
         self.initial_state.display_board()
 
-        # save visited states
+        # save unique visited states
         visited = set()
+
         # queue to manage BFS frontier
         queue = Queue()
+
         # add the initial state to the queue
         queue.put(self.initial_state)
+
+        # and to the visited set
         visited.add(self.initial_state.get_state_hashable())
 
-        # Dictionary to store the predecessor of each state
+        # create a dctionary to store the predecessor for each state
         predecessors = {self.initial_state.get_state_hashable(): None}
 
         # debugging
         print("Starting BFS...")
 
+        # condition to keep on running our algorithm
         while not queue.empty():
+
             # dequeue the next state
             current_state = queue.get()
 
@@ -62,19 +77,29 @@ class RushHourBFS:
                 # process the solution path to get the sequence of moves
                 moves = self.calculate_moves(solution_path)
 
+                # print the number of states we visited
                 print(f"Number of states visited: {self.states_visited}")
 
+                # return all the moves we have done to get to the solution
                 return moves
 
             # generate and enqueue all possible next states from the current state
             for next_state in self.generate_next_states(current_state):
                 state_hash = next_state.get_state_hashable()
+
+                # check if it is a unique state
                 if state_hash not in visited:
+
+                    # add it to the visited set
                     visited.add(state_hash)
+
+                    # and put it in the queue
                     queue.put(next_state)
-                    # Record the predecessor of the next_state
+
+                    # save/record the predecessor of the next_state
                     predecessors[state_hash] = current_state
 
+                    # increase the counter
                     self.states_visited += 1
 
         print("No solution found.")
@@ -82,66 +107,62 @@ class RushHourBFS:
 
     def calculate_moves(self, solution_path):
         """
-        Calculate the sequence of moves from the solution path.
-
-        Parameters:
-        solution_path (list): List of states representing the solution path.
-
-        Returns:
-        list: List of moves that lead to the solution.
+        In this method we will calculate the order of the moves done
+        to get from our initial state to the solution state. So 
+        we will find all the moves from our solution path
         """
+
+        # create an empty list for the moves
         moves = []
+
+        # loop through all the states in the solution path
         for i in range(1, len(solution_path)):
+
+            # get the previous state and the current state
             previous_state = solution_path[i - 1]
             current_state = solution_path[i]
+
+            # find the move that has been done and append it to the list
             move = state_to_move(previous_state, current_state)
             if move:
                 moves.append(move)
+
         return moves
 
     def generate_next_states(self, current_state):
         """
-        Generate all possible next states from the current state.
-
-        Parameters:
-        current_state (State): The current state of the game.
-
-        Returns:
-        list of State: A list of all possible next states.
+        In this method we will generate all the possible next states from 
+        the current state we are in.
         """
         #print(f"Generating next states for: {current_state.get_state_hashable()}")
 
-        # list of states
+        # create an empty list for the next states
         next_states = []
 
-
+        # loop through all vehicles in the gameboards current state
         for vehicle_name, vehicle in current_state.vehicles.items():
 
             #print(f"Trying to move vehicle: {vehicle_name}")
 
-            # try moving each vehicle one step forward and backward
+            # try to move each unique vehicle one step 
             for distance in [1, -1]:
 
-                # calculate new position
+                # calculate the new position for the vehicle
                 new_row, new_col = self.calculate_new_position(vehicle, distance)
-
-                #print(f"Attempting to move {vehicle_name} to Row: {new_row}, Col: {new_col}")
-
+                
+                # check if this move is possible/valid
                 if current_state.is_move_valid(vehicle, new_row, new_col):
-                    #print("Move is valid, generating new state")
-                    # make a copy of the current state and apply the move
+                    
+                    # make a copy of the current state
                     new_state = clone_rush_hour_state(current_state)
+
+                    # apply the move to the board
                     new_state.move_vehicle(vehicle_name, distance)
 
+                    # append the new state to the list
                     next_states.append(new_state)
 
-
-                    # debugging
-                    #print(f"Generated new state by moving {vehicle_name} {distance} step(s):")
-                    #new_state.display_board()
-                #else:
-                    #print(f"Move not valid for vehicle {vehicle_name}")
-
+        # check if we generated new states
         if not next_states:
             print("No new states generated")
 
@@ -149,111 +170,138 @@ class RushHourBFS:
 
 
     def calculate_new_position(self, vehicle, distance):
+        """
+        In this method we will calculate the new position for 
+        a vehicle based on its orientation.
+        """
+        
+        # if the vehicle is horizontal oriented
         if vehicle.orientation == 'H':
+
+            # increase the column position by the move distance
             return vehicle.row, vehicle.col + distance
+
+        # if the vehicle is vertical oriented    
         else:
+
+            # increase the row position by the move distance
             return vehicle.row + distance, vehicle.col
 
 
     def backtrack_path(self, goal_state, predecessors):
         """
-        Backtrack from the goal state to the initial state to find the solution path.
-
-        Parameters:
-        goal_state (State): The goal state from which to start backtracking.
-
-        Returns:
-        list of State: The path from the initial state to the goal state.
+        In this method we will backtrack from the solution state/goal state to 
+        the initial state/starting state to find the solution path.
         """
-        # store the path
+
+        # create an empty list for the path
         path = []
+
+        # set that the current state is the goal state
         current_state = goal_state
+
         while current_state:
             path.append(current_state)
+
+            # get all the predecessor states from the goal state
             current_state = predecessors.get(current_state.get_state_hashable())
+
         # reverse the path to start from the initial state
         return path[::-1]
 
     def check_win(self, state):
         """
-        Check if the given state is a winning state.
-
-        Parameters:
-        state (RushHour): The state to check.
-
-        Returns:
-        bool: True if it's a winning state, False otherwise.
+        In this method we will apply a check to see
+        if the game has been won.
         """
 
+        # get the position of the red car
         red_car = state.vehicles.get('X')
-        if not red_car:
-            return False  # Red car not found in the state
 
-        # Check if red car is horizontal and at the rightmost position
+        # if there is no red car
+        if not red_car:
+
+            # return False, since the car is not in the state
+            return False
+
+        # check if red car is horizontal and at winning position
         if red_car.orientation == 'H' and red_car.col + red_car.length == state.board_size:
+
+            # return True, since the game has been won
             return True
 
+        # otherwise return False
         return False
 
 def state_to_move(previous_state, current_state):
     """
-    Convert a state into a move by comparing it with its predecessor.
-
-    Parameters:
-    previous_state (RushHour): The previous state of the game.
-    current_state (RushHour): The current state of the game.
-
-    Returns:
-    tuple: A tuple containing the vehicle name and the distance moved.
+    In this method we convert a given state to a move by comparing
+    the current state with its previous state.
     """
+
+    # loop through all the vehicles in the gameboards current state
     for vehicle_name, current_vehicle in current_state.vehicles.items():
+
+        # get the previous position of the vehicle
         previous_vehicle = previous_state.vehicles[vehicle_name]
+
+        # check if the vehicle is not in the same position (vertical movement)
         if current_vehicle.row != previous_vehicle.row:
-            # Vertical movement
+
+            # get the distance from the move that has been done
             distance = current_vehicle.row - previous_vehicle.row
             return (vehicle_name, distance)
+
+        # check if the vehicle is not in the same position (horizontal movement)    
         elif current_vehicle.col != previous_vehicle.col:
-            # Horizontal movement
+
+            # get the distance from the move that has been done
             distance = current_vehicle.col - previous_vehicle.col
             return (vehicle_name, distance)
 
-    return None  # No move detected
+    # return None if we have not detected any move
+    return None
 
 def clone_rush_hour_state(rush_hour_state):
     """
-    Create a deep copy of the given RushHour game state.
-
-    Parameters:
-    rush_hour_state (RushHour): The RushHour instance to clone.
-
-    Returns:
-    RushHour: A new RushHour object with the same state as the input state.
+    In this method we will create a deep copy/clone from
+    an inputed game state of the rush hour case.
     """
-    # Create a new RushHour instance without starting the game
+
+    # create a cloned rush hour instance without starting the game
     cloned_game = RushHour(start_game=False, board_size=rush_hour_state.board_size, board=[row[:] for row in rush_hour_state.board])
 
-    # Deep copy each vehicle
+    # make a deep copy of each vehicle
     cloned_game.vehicles = {}
     for name, vehicle in rush_hour_state.vehicles.items():
         cloned_vehicle = Vehicle(vehicle.name, vehicle.length, vehicle.orientation, vehicle.row, vehicle.col)
         cloned_game.vehicles[name] = cloned_vehicle
 
+    # return the cloned game state
     return cloned_game
 
 if __name__ == "__main__":
 
+    # create an instance of the rush hour game
     rush_hour_game = RushHour()
+
+    # get the initial state from the game
     initial_state_hash = rush_hour_game.get_state_hashable()
+
     #print(f"Initial state for BFS: {initial_state_hash}")
 
     solver = RushHourBFS(rush_hour_game)
 
+    # create the start time
     start_time = time.time()
 
+    # find the solution path
     solution_path = solver.bfs()
 
+    # create the end time
     end_time = time.time()
 
+    # if we have found a solution path
     if solution_path:
         print("Solution sequence of moves:")
         for move in solution_path:
