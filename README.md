@@ -47,6 +47,14 @@ Hierna zal gevraagd worden welk algoritme je wilt gebruiken en kan je vervolgens
 Vervolgens zal het algoritme gaan runnen. Het zal de beginconfiguratie en oplossing van het bord tonen wanneer er een oplossing mogelijk is.
 Ook zal het aantal nodige zetten geprint worden.
 
+### Visualisatie
+Voor het runnen van de visualisatie is deze command vereist in de terminal:
+```
+python -m code.visualisation.visualize_rushhour
+```
+Hierna zal gevraagd worden om een bord te kiezen. Nadat dit bord geinitialiseerd is kan een algoritme gekozen worden om te laten visualizeren.
+Het is ook mogelijk om het spel handmatig te spelen.
+
 ### Structuur
 
 De hierop volgende lijst beschrijft de belangrijkste mappen en files in het project, en waar je ze kan vinden:
