@@ -1,4 +1,3 @@
-# baseline.py
 import random
 import time
 from rush_hour import RushHour
