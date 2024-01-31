@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-def plot_moves_and_time(puzzle_names, moves_data, states_data):
+def plot_moves_and_states(puzzle_names, moves_data, states_data, total_state_space):
     # data for number of moves and states visited for each algorithm
     bfs, dfs, astar = moves_data
     bfs_states, dfs_states, astar_states = states_data
@@ -22,17 +22,18 @@ def plot_moves_and_time(puzzle_names, moves_data, states_data):
     ax1.legend(loc='upper left')
     ax1.grid()
 
-    # plotting line chart for the time
+    # plotting line chart for the states visited and total state space
     ax2 = ax1.twinx()
     ax2.plot(puzzle_names, bfs_states, color='blue', label='States visited - Breadth-First-Search', marker='o')
     ax2.plot(puzzle_names, dfs_states, color='red', label='States visited - Depth-First-Search', marker='o')
     ax2.plot(puzzle_names, astar_states, color='green', label='States visited - A*', marker='o')
+    ax2.plot(puzzle_names, total_state_space, color='purple', label='Total State Space', marker='x', linestyle='--')
     ax2.set_ylabel('Number of states')
     ax2.legend(loc='upper right')
 
     plt.show()
 
-# data
+
 puzzle_names = ['6x6-1', '6x6-2', '6x6-3']
 bfs = [35, 29, 83]
 dfs = [187, 219, 2050]
@@ -44,4 +45,7 @@ states_dfs = [397, 861, 5711]
 states_astar = [291, 1244, 7362]
 states_data = [states_bfs, states_dfs, states_astar]
 
-plot_moves_and_time(puzzle_names, moves_data, states_data)
+
+total_state_space = [818, 13841, 11252]
+
+plot_moves_and_states(puzzle_names, moves_data, states_data, total_state_space)
